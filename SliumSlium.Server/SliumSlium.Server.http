@@ -1,0 +1,6 @@
+@SliumSlium.Server_HostAddress = http://localhost:5014
+
+GET {{SliumSlium.Server_HostAddress}}/weatherforecasts/
+Accept: application/json
+
+###
