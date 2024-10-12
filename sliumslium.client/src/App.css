@@ -1,16 +1,23 @@
-﻿.App {
+﻿html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.App {
   text-align: center;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
 }
 
 .App-header {
@@ -24,20 +31,35 @@
   color: white;
 }
 
-.nav-wrapper {
-  background-color: #333333; /* Removed quotes from background color */
-  padding-left: 2%;
-  padding-right: 2%;
+.nav-wrapper,
+.page-footer {
+  background-color: #333333;
+  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.page-footer {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-html,
-body {
-  height: 100%;
-  margin: 0;
+@media (max-width: 768px) {
+  .page-footer {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+  }
+  .book-item {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-item {
+    max-width: 100%;
+    margin: 10px 0;
+  }
 }
 
 .app-container {
@@ -50,138 +72,118 @@ body {
   flex: 1;
 }
 
-.page-footer {
-  background-color: #999999;
-  padding: 10px 20px;
-  color: white;
-  display: flex;
-  flex: none;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-@media (max-width: 768px) {
-  .page-footer {
-    padding: 5px 10px; /* Further reduce padding on smaller screens */
-    font-size: 0.9rem; /* Decrease font size */
-  }
-}
-
-#root {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-body {
-  height: 100vh !important;
-}
-
 main {
-  display: flex;
   flex: 1;
+  display: flex;
   flex-direction: column;
+  width: 100vw;
 }
 
 .book-list {
-  display: flex;                /* Use flexbox to layout items horizontally */
-  flex-wrap: wrap;             /* Allow items to wrap to the next line */
-  justify-content: center;      /* Center items horizontally */
-  padding: 20px;               /* Add padding around the list */
-  margin-bottom: 20px; /* Space between the book list and the pagination */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 .book-item {
-  display: flex;                    /* Use flexbox for layout */
-  flex-direction: column;           /* Stack children vertically */
-  background-color: #f9f9f9;       /* Light background for book item */
-  border: 1px solid #ddd;          /* Border for book item */
-  border-radius: 8px;              /* Rounded corners */
-  margin: 15px;                    /* Margin around each book item */
-  padding: 10px;                   /* Padding inside each book item */
-  max-width: 200px;                /* Max width for each book item */
-  text-align: center;              /* Center text inside the book item */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow */
-  transition: transform 0.3s;      /* Smooth scale on hover */
-  overflow: hidden;                /* Prevent content overflow */
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 15px;
+  padding: 10px;
+  max-width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  overflow: hidden;
 }
 
 .book-item:hover {
-  transform: scale(1.05);      /* Slightly scale up on hover */
+  transform: scale(1.05);
 }
 
 .book-item img {
-  width: 100%;                 /* Make image fill the width of the item */
-  height: auto;                /* Maintain aspect ratio */
-  border-radius: 4px;         /* Rounded corners for images */
-  display: block;              /* Ensures images are treated as block elements */
-  object-fit: cover;           /* Ensures the image covers the area */
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  object-fit: cover;
   margin: 10px 0px;
-  max-width: 100%;    
 }
 
 .book-title {
-  font-size: 1.2em;                /* Font size for book title */
-  margin: 10px 0;                  /* Spacing around the title */
+  font-size: 1.2em;
+  margin: 10px 0;
 }
 
 .book-year,
 .book-type {
-  font-size: 0.9em;                /* Font size for other properties */
-  margin: 5px 0;                   /* Spacing between properties */
+  font-size: 0.9em;
+  margin: 5px 0;
 }
 
 .BookOrder {
-  margin-top: auto;                /* Push the link to the bottom */
-  color: #61dafb;                  /* Color for the link */
-  text-decoration: none;           /* Remove underline */
+  margin-top: auto;
+  color: #61dafb;
+  text-decoration: none;
 }
 
 .BookOrder:hover {
-  text-decoration: underline;      /* Add underline on hover */
-}
-
-/* Media Queries for Responsiveness */
-@media (max-width: 768px) {
-  .book-item {
-      max-width: 150px;        /* Smaller max width on smaller screens */
-  }
-}
-
-@media (max-width: 480px) {
-  .book-item {
-      max-width: 100%;         /* Full width on very small screens */
-      margin: 10px 0;          /* Adjust margins */
-  }
+  text-decoration: underline;
 }
 
 .pagination {
-  display: flex;               /* Flexbox layout for pagination */
-  justify-content: center;     /* Center the pagination links */
-  margin-top: 20px;           /* Space above pagination */
-  padding: 0;                 /* Remove default padding */
-  list-style-type: none;      /* Remove bullet points */
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 0;
+  list-style-type: none;
 }
 
 .pagination li {
-  margin: 0 5px;              /* Space between pagination items */
+  margin: 0 5px;
 }
 
 .pagination li a {
-  padding: 8px 12px;          /* Add padding for clickable area */
-  border-radius: 4px;         /* Rounded corners */
-  background-color: #f1f1f1;  /* Background for pagination items */
-  text-decoration: none;       /* Remove underline from links */
-  color: #333;                 /* Text color */
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+  text-decoration: none;
+  color: #333;
 }
 
 .pagination li.disabled a {
-  color: #ccc;                 /* Light color for disabled links */
-  pointer-events: none;        /* Disable pointer events */
+  color: #ccc;
+  pointer-events: none;
 }
 
 .pagination li.active a {
-  background-color: #1976d2;   /* Active page background color */
-  color: white;                /* Active page text color */
+  background-color: #1976d2;
+  color: white;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 999;
+}
+
+.progress {
+  width: 70%;
+  max-width: 400px;
+}
+
+.indeterminate {
+  height: 8px;
 }

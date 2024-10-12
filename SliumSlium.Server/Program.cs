@@ -11,7 +11,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", builder =>
     {
-        builder.WithOrigins("https://localhost:5173") // Change to your frontend URL
+        builder.WithOrigins("https://localhost:5173")
                .AllowAnyMethod()
                .AllowAnyHeader();
     });
@@ -31,7 +31,7 @@ using (var scope = app.Services.CreateScope())
 
     context.Books.AddRange(
         new Book { Id = 1, Name = "1984", Year = 1949, Type = "Book", PictureUrl = "images/1984.jpg" },
-        new Book { Id = 2, Name = "The Hobbit", Year = 1937, Type = "Audiobook", PictureUrl = "images/thehobbit.jpg" },
+        new Book { Id = 2, Name = "The Hobbit", Year = 1938, Type = "Audiobook", PictureUrl = "images/thehobbit.jpg" },
         new Book { Id = 3, Name = "The Hobbit", Year = 1937, Type = "Book", PictureUrl = "images/thehobbit2.jpg" },
         new Book { Id = 4, Name = "Brave New World", Year = 1932, Type = "Book", PictureUrl = "images/bravenewworld.jpg" },
         new Book { Id = 5, Name = "To Kill a Mockingbird", Year = 1960, Type = "Book", PictureUrl = "images/tokillamockingbird.jpg" },

@@ -6,21 +6,23 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Account from "./pages/Account";
+import Search from "./components/Search";
+import SearchResults from "./components/SearchResults";
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Header />
+      <Search /> {/* Search is displayed constantly */}
       <main>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/account" element={<Account />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/search-results" element={<SearchResults />} />
+        </Routes>
       </main>
       <Footer />
-    </>
+    </BrowserRouter>
   );
 }
 

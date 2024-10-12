@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryReservationApp.Controllers
@@ -18,13 +18,13 @@ namespace LibraryReservationApp.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] string name, [FromQuery] int? year, [FromQuery] string type)
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] string? name, [FromQuery] int? year, [FromQuery] string? type)
         {
             var query = _context.Books.AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
             {
-                query = query.Where(b => b.Name.Contains(name));
+                query = query.Where(b => b.Name.ToLower().Contains(name.ToLower()));
             }
 
             if (year.HasValue)
@@ -34,7 +34,19 @@ namespace LibraryReservationApp.Controllers
 
             if (!string.IsNullOrEmpty(type))
             {
-                query = query.Where(b => b.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(b => b.Type.ToLower().Equals(type.ToLower(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (query.Count() == 0 && !string.IsNullOrEmpty(name))
+            {
+                if (int.TryParse(name, out int parsedYear))
+                {
+                    query = _context.Books.Where(b => b.Year == parsedYear);
+                }
+                else
+                {
+                    query = _context.Books.Where(b => b.Type.Equals(name, StringComparison.OrdinalIgnoreCase));
+                }
             }
 
             return await query.ToListAsync();
