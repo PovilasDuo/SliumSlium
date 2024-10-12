@@ -1,3 +1,3 @@
 export enum Endpoint {
-  JOB_OFFER = "JobOffer",
+  ALL_BOOKS = "ALL_BOOKS",
 }

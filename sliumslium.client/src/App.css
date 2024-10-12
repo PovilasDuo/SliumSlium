@@ -1,19 +1,187 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+﻿.App {
+  text-align: center;
 }
 
-tr:nth-child(even) {
-    background: #F2F2F2;
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
 }
 
-tr:nth-child(odd) {
-    background: #FFF;
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.nav-wrapper {
+  background-color: #333333; /* Removed quotes from background color */
+  padding-left: 2%;
+  padding-right: 2%;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
+
+.page-footer {
+  background-color: #999999;
+  padding: 10px 20px;
+  color: white;
+  display: flex;
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .page-footer {
+    padding: 5px 10px; /* Further reduce padding on smaller screens */
+    font-size: 0.9rem; /* Decrease font size */
+  }
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+body {
+  height: 100vh !important;
+}
+
+main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.book-list {
+  display: flex;                /* Use flexbox to layout items horizontally */
+  flex-wrap: wrap;             /* Allow items to wrap to the next line */
+  justify-content: center;      /* Center items horizontally */
+  padding: 20px;               /* Add padding around the list */
+  margin-bottom: 20px; /* Space between the book list and the pagination */
+}
+
+.book-item {
+  display: flex;                    /* Use flexbox for layout */
+  flex-direction: column;           /* Stack children vertically */
+  background-color: #f9f9f9;       /* Light background for book item */
+  border: 1px solid #ddd;          /* Border for book item */
+  border-radius: 8px;              /* Rounded corners */
+  margin: 15px;                    /* Margin around each book item */
+  padding: 10px;                   /* Padding inside each book item */
+  max-width: 200px;                /* Max width for each book item */
+  text-align: center;              /* Center text inside the book item */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow */
+  transition: transform 0.3s;      /* Smooth scale on hover */
+  overflow: hidden;                /* Prevent content overflow */
+}
+
+.book-item:hover {
+  transform: scale(1.05);      /* Slightly scale up on hover */
+}
+
+.book-item img {
+  width: 100%;                 /* Make image fill the width of the item */
+  height: auto;                /* Maintain aspect ratio */
+  border-radius: 4px;         /* Rounded corners for images */
+  display: block;              /* Ensures images are treated as block elements */
+  object-fit: cover;           /* Ensures the image covers the area */
+  margin: 10px 0px;
+  max-width: 100%;    
+}
+
+.book-title {
+  font-size: 1.2em;                /* Font size for book title */
+  margin: 10px 0;                  /* Spacing around the title */
+}
+
+.book-year,
+.book-type {
+  font-size: 0.9em;                /* Font size for other properties */
+  margin: 5px 0;                   /* Spacing between properties */
+}
+
+.BookOrder {
+  margin-top: auto;                /* Push the link to the bottom */
+  color: #61dafb;                  /* Color for the link */
+  text-decoration: none;           /* Remove underline */
+}
+
+.BookOrder:hover {
+  text-decoration: underline;      /* Add underline on hover */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .book-item {
+      max-width: 150px;        /* Smaller max width on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .book-item {
+      max-width: 100%;         /* Full width on very small screens */
+      margin: 10px 0;          /* Adjust margins */
+  }
+}
+
+.pagination {
+  display: flex;               /* Flexbox layout for pagination */
+  justify-content: center;     /* Center the pagination links */
+  margin-top: 20px;           /* Space above pagination */
+  padding: 0;                 /* Remove default padding */
+  list-style-type: none;      /* Remove bullet points */
+}
+
+.pagination li {
+  margin: 0 5px;              /* Space between pagination items */
+}
+
+.pagination li a {
+  padding: 8px 12px;          /* Add padding for clickable area */
+  border-radius: 4px;         /* Rounded corners */
+  background-color: #f1f1f1;  /* Background for pagination items */
+  text-decoration: none;       /* Remove underline from links */
+  color: #333;                 /* Text color */
+}
+
+.pagination li.disabled a {
+  color: #ccc;                 /* Light color for disabled links */
+  pointer-events: none;        /* Disable pointer events */
+}
+
+.pagination li.active a {
+  background-color: #1976d2;   /* Active page background color */
+  color: white;                /* Active page text color */
 }
