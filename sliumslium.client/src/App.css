@@ -126,13 +126,13 @@ main {
   margin: 5px 0;
 }
 
-.BookOrder {
+.btn-modal-trigger {
   margin-top: auto;
   color: #61dafb;
   text-decoration: none;
 }
 
-.BookOrder:hover {
+.btn-modal-trigger:hover {
   text-decoration: underline;
 }
 

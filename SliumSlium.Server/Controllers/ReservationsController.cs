@@ -83,7 +83,6 @@ namespace LibraryReservationApp.Controllers
         [HttpPost]
         public async Task<ActionResult<ReservationDTO>> PostReservation([FromBody] ReservationDTO reservationDto)
         {
-            // Validate reservationDto
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -94,7 +93,6 @@ namespace LibraryReservationApp.Controllers
                 return BadRequest("At least one Book must be provided.");
             }
 
-            // Fetch the books from the database
             var bookIds = reservationDto.Books.Select(b => b.Id).ToList();
             var books = await _context.Books.Where(b => bookIds.Contains(b.Id)).ToListAsync();
 
@@ -103,7 +101,6 @@ namespace LibraryReservationApp.Controllers
                 return BadRequest("One or more BookIds are invalid.");
             }
 
-            // Calculate TotalAmount based on business rules
             decimal total = 0;
 
             foreach (var book in books)
@@ -112,26 +109,22 @@ namespace LibraryReservationApp.Controllers
                 total += reservationSum * reservationDto.Days;
             }
 
-            // Apply discount
             if (reservationDto.Days > 10)
             {
-                total *= 0.80m; // 20% off
+                total *= 0.80m;
             }
             else if (reservationDto.Days > 3)
             {
-                total *= 0.90m; // 10% off
+                total *= 0.90m; 
             }
 
-            // Add service fee
             total += 3;
 
-            // Add quick pick up fee if selected
             if (reservationDto.QuickPickUp)
             {
                 total += 5;
             }
 
-            // Create Reservation entity
             var reservation = new Reservation
             {
                 ReservationType = reservationDto.ReservationType,
@@ -148,14 +141,12 @@ namespace LibraryReservationApp.Controllers
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
 
-            // Load the reservation with books to return
             await _context.Entry(reservation)
                 .Collection(r => r.ReservationBooks)
                 .Query()
                 .Include(rb => rb.Book)
                 .LoadAsync();
 
-            // Map to ReservationDTO for return
             var createdReservationDto = new ReservationDTO
             {
                 Id = reservation.Id,
@@ -177,7 +168,6 @@ namespace LibraryReservationApp.Controllers
             return CreatedAtAction(nameof(GetReservation), new { id = createdReservationDto.Id }, createdReservationDto);
         }
 
-        // DELETE: api/Reservations/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
