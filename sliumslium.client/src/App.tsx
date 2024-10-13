@@ -8,7 +8,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Account from "./pages/Account";
 import Search from "./components/Search";
 import SearchResults from "./components/SearchResults";
-import Reservations from "./pages/Reservations";
+import CartPage from "./pages/CartPage";
 
 function App() {
   return (
@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/account" element={<Account />} />
           <Route path="/search-results" element={<SearchResults />} />
-          <Route path="/reservations" element={<Reservations />} />
+          <Route path="/cart" element={<CartPage />} />
         </Routes>
       </main>
       <Footer />

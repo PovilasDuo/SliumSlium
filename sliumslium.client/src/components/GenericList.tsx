@@ -2,13 +2,22 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BookDTO } from "../models/BookDTO";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faArrowRight,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
 import M from "materialize-css";
 import { useNavigate } from "react-router-dom";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 
 const ITEMS_PER_PAGE = 10;
+
+interface CartItem {
+  book: BookDTO;
+  days: string;
+  quickPickUp: boolean;
+  reservationType: string;
+}
 
 interface BookListProps {
   books: BookDTO[];
@@ -18,38 +27,69 @@ interface BookListProps {
 const BookList: React.FC<BookListProps> = ({ books, header }) => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent, book: BookDTO) => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-    const days = parseInt(formData.get("days") as string);
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const days = formData.get("days") as string;
     const quickPickUp = formData.get("quickPickup") === "on";
 
-    const reservationData = {
-      ReservationType: book.type, // Assuming the reservation type is the book type
-      QuickPickUp: quickPickUp,
-      Days: days,
-      TotalAmount: 0, // TotalAmount will be calculated in the backend
-      ReservedAt: new Date(),
-      Books: [{ Id: book.id }], // Only one book per order in this modal
+    if (!days || parseInt(days) <= 0) {
+      M.toast({ html: "Please enter a valid number of days greater than 0." });
+      return;
+    }
+
+    const bookExistsInCart = cart.some(
+      (cartItem) => cartItem.book.id === book.id
+    );
+    if (bookExistsInCart) {
+      M.toast({ html: "This book is already in your cart." });
+      return;
+    }
+
+    const newCartItem: CartItem = {
+      book,
+      days,
+      quickPickUp,
+      reservationType: book.type,
     };
 
-    try {
-      const response = await axios.post(
-        "https://your-backend-url/api/Reservations",
-        reservationData
-      );
-      console.log("Reservation successful:", response.data);
-      // Optionally close the modal or navigate to another page
-      M.toast({ html: "Reservation successful!" });
-    } catch (error) {
-      console.error("Error submitting reservation:", error);
-      M.toast({ html: "Failed to make a reservation." });
+    const updatedCart = [...cart, newCartItem];
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    const toastHTML = `
+      <span>Book added to the cart!</span>
+      <button id="go-to-cart" class="btn-flat toast-action">Go to cart</button>
+    `;
+    M.toast({ html: toastHTML });
+
+    const toastButton = document.getElementById("go-to-cart");
+    if (toastButton) {
+      toastButton.addEventListener("click", handleToastClick);
     }
+
+    const modalId = `#modal${book.id}`;
+    const modal = document.querySelector(modalId);
+
+    if (modal) {
+      const instance = M.Modal.getInstance(modal);
+      if (instance) {
+        instance.close();
+      }
+    }
+  };
+
+  const handleToastClick = () => {
+    navigate("/cart");
+    M.Toast.dismissAll();
   };
 
   useEffect(() => {
@@ -100,12 +140,19 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                 <h3 className="book-title">{book.name}</h3>
                 <p className="book-year">Year: {book.year}</p>
                 <p className="book-type">Type: {book.type}</p>
-                <a
-                  href={`#modal${book.id}`}
+                <button
                   className="btn modal-trigger btn-modal-trigger"
+                  onClick={() => {
+                    const modalId = `#modal${book.id}`;
+                    const modalElement = document.querySelector(modalId);
+                    if (modalElement) {
+                      const instance = M.Modal.getInstance(modalElement);
+                      instance.open();
+                    }
+                  }}
                 >
                   Order
-                </a>
+                </button>
                 {createPortal(
                   <div id={`modal${book.id}`} className="modal box">
                     <div style={{ display: "flex", alignItems: "stretch" }}>
@@ -144,7 +191,11 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                           <div className="row">
                             <div className="input-field col s12">
                               <label>
-                                <input type="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  name="quickPickup"
+                                  id="quickPickup"
+                                />
                                 <span>Quick pick up? €5</span>
                               </label>
                             </div>
@@ -155,6 +206,8 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                                   type="number"
                                   min="0"
                                   className="validate"
+                                  name="days"
+                                  id="days"
                                   required
                                 />
                                 <span
@@ -177,7 +230,7 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                                 type="submit"
                                 name="action"
                               >
-                                Submit &nbsp;
+                                Add to Cart &nbsp;
                                 <FontAwesomeIcon icon={faPaperPlane} />
                               </button>
                             </div>

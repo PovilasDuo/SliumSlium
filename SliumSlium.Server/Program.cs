@@ -80,7 +80,7 @@ app.UseCors(x => x
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin"); // Use the CORS policy here
+app.UseCors("AllowSpecificOrigin");
 
 app.UseStaticFiles();
 

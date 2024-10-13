@@ -6,5 +6,5 @@ export interface ReservationDTO {
     Days: number;
     TotalAmount: number;
     ReservedAt: Date;
-    Books: BookDTO
+    Books: BookDTO[]
 }

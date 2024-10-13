@@ -16,7 +16,6 @@ namespace LibraryReservationApp.Controllers
             _context = context;
         }
 
-        // GET: api/Reservations
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReservationDTO>>> GetReservations()
         {

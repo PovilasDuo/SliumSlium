@@ -4,7 +4,7 @@ namespace LibraryReservationApp.Models
     {
         public int Id { get; set; }
 
-        public string ReservationType { get; set; } // "Book" or "Audiobook"
+        public string ReservationType { get; set; }
 
         public bool QuickPickUp { get; set; }
 

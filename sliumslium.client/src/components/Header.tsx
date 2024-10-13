@@ -1,5 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faHome, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBook,
+  faHome,
+  faUser,
+  faCartShopping,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
   const html = (
@@ -20,6 +25,11 @@ export default function Header() {
           <li>
             <a href="/login">
               My reservations <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>
+            </a>
+          </li>
+          <li>
+            <a href="/cart">
+              Cart <FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon>
             </a>
           </li>
         </ul>

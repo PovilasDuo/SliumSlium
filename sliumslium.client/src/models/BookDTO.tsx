@@ -1,4 +1,3 @@
-// models/BookDTO.ts
 export interface BookDTO {
     id: number;
     name: string;

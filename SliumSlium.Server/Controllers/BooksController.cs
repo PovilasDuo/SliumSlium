@@ -16,7 +16,6 @@ namespace LibraryReservationApp.Controllers
             _context = context;
         }
 
-        // GET: api/Books
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] string? name, [FromQuery] int? year, [FromQuery] string? type)
         {
@@ -52,7 +51,6 @@ namespace LibraryReservationApp.Controllers
             return await query.ToListAsync();
         }
 
-        // GET: api/Books/All
         [HttpGet("All")]
         public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
@@ -69,7 +67,6 @@ namespace LibraryReservationApp.Controllers
             return books;
         }
 
-        // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
@@ -86,7 +83,6 @@ namespace LibraryReservationApp.Controllers
             return book;
         }
 
-        // POST: api/Books
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
@@ -96,7 +92,6 @@ namespace LibraryReservationApp.Controllers
             return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
-        // PUT: api/Books/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
