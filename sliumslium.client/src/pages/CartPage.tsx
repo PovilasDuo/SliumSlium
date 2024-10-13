@@ -86,6 +86,7 @@ const CartPage: React.FC = () => {
       .then((data) => {
         M.toast({
           html: `Reservation completed! Total Amount: €${data.totalAmount}`,
+          classes: "green",
         });
         localStorage.removeItem("cart");
         setCartItems([]);
@@ -108,7 +109,7 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="cart-container center-align">
+    <div className="center-align">
       <h2>Your Cart</h2>
       <ul className="book-list">
         {cartItems.map((item) => (
@@ -136,7 +137,7 @@ const CartPage: React.FC = () => {
           </li>
         ))}
       </ul>
-      <div className="cart-container center-align"> </div>
+      <div className="center-align"> </div>
       <h3>Total Amount: €{totalAmount}</h3>
       <button onClick={handleCheckout} className="btn green">
         Checkout

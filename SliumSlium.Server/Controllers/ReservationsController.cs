@@ -44,7 +44,6 @@ namespace LibraryReservationApp.Controllers
             return Ok(reservations);
         }
 
-        // GET: api/Reservations/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ReservationDTO>> GetReservation(int id)
         {
@@ -78,7 +77,6 @@ namespace LibraryReservationApp.Controllers
             return Ok(reservation);
         }
 
-        // POST: api/Reservations
         [HttpPost]
         public async Task<ActionResult<ReservationDTO>> PostReservation([FromBody] ReservationDTO reservationDto)
         {

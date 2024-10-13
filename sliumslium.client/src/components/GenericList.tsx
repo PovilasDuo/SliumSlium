@@ -65,16 +65,19 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
+    const uniqueToastId = `go-to-cart-${newCartItem.book.id}`;
     const toastHTML = `
-      <span>Book added to the cart!</span>
-      <button id="go-to-cart" class="btn-flat toast-action">Go to cart</button>
+        <span>Book added to the cart!</span>
+        <button id="${uniqueToastId}" class="btn-flat toast-action">Go to cart</button>
     `;
     M.toast({ html: toastHTML });
 
-    const toastButton = document.getElementById("go-to-cart");
-    if (toastButton) {
-      toastButton.addEventListener("click", handleToastClick);
-    }
+    setTimeout(() => {
+      const toastButton = document.getElementById(uniqueToastId);
+      if (toastButton) {
+        toastButton.addEventListener("click", handleToastClick);
+      }
+    }, 0);
 
     const modalId = `#modal${book.id}`;
     const modal = document.querySelector(modalId);
@@ -144,10 +147,16 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                   className="btn modal-trigger btn-modal-trigger"
                   onClick={() => {
                     const modalId = `#modal${book.id}`;
-                    const modalElement = document.querySelector(modalId);
-                    if (modalElement) {
-                      const instance = M.Modal.getInstance(modalElement);
-                      instance.open();
+                    const modal = document.querySelector(modalId);
+                    if (modal) {
+                      const instance = M.Modal.getInstance(modal);
+                      if (instance) {
+                        instance.open();
+                      } else {
+                        const modals = document.querySelectorAll(".modal");
+                        M.Modal.init(modals);
+                        console.log("Modal could not be found");
+                      }
                     }
                   }}
                 >
@@ -234,6 +243,16 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                                 <FontAwesomeIcon icon={faPaperPlane} />
                               </button>
                             </div>
+                            <h5>
+                              <p>
+                                <i> {"Be sure to use our discount!"}</i>
+                              </p>
+                            </h5>
+
+                            <p>{" More than 3 days – 10% off"}</p>
+                            <h6>
+                              <p>{" More than 10 days – 20% off"}</p>
+                            </h6>
                           </div>
                         </form>
                       </div>
