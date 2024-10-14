@@ -50,7 +50,7 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
       (cartItem) => cartItem.book.id === book.id
     );
     if (bookExistsInCart) {
-      M.toast({ html: "This book is already in your cart." });
+      M.toast({ html: `This book is already in your cart.`, classes: "red" });
       return;
     }
 

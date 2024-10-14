@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Book } from "../models/Book";
+import { BookDTO } from "../models/BookDTO";
 import GenericList from "./GenericList";
 import { fetchBooks } from "../services/BookService";
 
@@ -11,7 +11,7 @@ export default function SearchResults() {
   const year = query.get("year");
   const type = query.get("type");
 
-  const [results, setResults] = useState<Book[]>([]);
+  const [results, setResults] = useState<BookDTO[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [header, setHeader] = useState<string>("No books were found");
 
@@ -27,8 +27,8 @@ export default function SearchResults() {
       try {
         const data = await fetchBooks(apiUrl);
         setResults(data);
-        if (data.length > 1)  setHeader(`${data.length} books were found`);
-        else  setHeader(`${data.length} book was found`);
+        if (data.length > 1) setHeader(`${data.length} books were found`);
+        else setHeader(`${data.length} book was found`);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data.");

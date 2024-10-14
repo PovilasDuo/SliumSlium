@@ -53,6 +53,45 @@ using (var scope = app.Services.CreateScope())
         new Book { Id = 21, Name = "Fahrenheit 451", Year = 1953, Type = "Book", PictureUrl = "images/fahrenheit451.jpg" }
     );
 
+    var reservations = new List<Reservation>
+    {
+        new Reservation
+        {
+            Id = 1,
+            TotalAmount = 15.00m,
+            ReservedAt = DateTime.UtcNow.AddDays(-1),
+            ReservationBooks = new List<ReservationBook>
+            {
+                new ReservationBook { ReservationId = 1, BookId = 1, Days = 5, QuickPickUp = true },
+                new ReservationBook { ReservationId = 1, BookId = 2, Days = 3, QuickPickUp = false }
+            }
+        },
+        new Reservation
+        {
+            Id = 2,
+            TotalAmount = 10.00m,
+            ReservedAt = DateTime.UtcNow.AddDays(-2),
+            ReservationBooks = new List<ReservationBook>
+            {
+                new ReservationBook { ReservationId = 2, BookId = 3, Days = 7, QuickPickUp = true },
+                new ReservationBook { ReservationId = 2, BookId = 4, Days = 2, QuickPickUp = false }
+            }
+        },
+        new Reservation
+        {
+            Id = 3,
+            TotalAmount = 20.00m,
+            ReservedAt = DateTime.UtcNow.AddDays(-3),
+            ReservationBooks = new List<ReservationBook>
+            {
+                new ReservationBook { ReservationId = 3, BookId = 5, Days = 10, QuickPickUp = false },
+                new ReservationBook { ReservationId = 3, BookId = 6, Days = 4, QuickPickUp = true }
+            }
+        }
+    };
+
+    context.Reservations.AddRange(reservations);
+
     context.SaveChanges();
 }
 

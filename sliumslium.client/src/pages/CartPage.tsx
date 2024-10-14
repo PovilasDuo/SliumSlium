@@ -116,7 +116,7 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="center-align">
-      <h2>Your Cart</h2>
+      <h2>Your cart</h2>
       <ul className="book-list">
         {cartItems.map((item) => (
           <li key={item.book.id} className="book-item">
@@ -129,25 +129,46 @@ const CartPage: React.FC = () => {
             <p className="book-year">Year: {item.book.year}</p>
             <p className="book-type">Type: {item.book.type}</p>
             <p className="book-days">Days: {item.days}</p>
-            {item.days > 3 ? (
-              <p className="book-days">
-                Regular price: €{" "}
-                {item.days * (item.book.type === "Book" ? 3 : 2)}
-              </p>
+            {item.quickPickUp ? (
+              <>
+                {item.days > 3 ? (
+                  <p className="book-days">
+                    Regular price: €{" "}
+                    {item.days * (item.book.type === "Book" ? 2 : 3)}
+                  </p>
+                ) : (
+                  <p className="book-days">
+                    Regular price: € {(item.price - 5).toFixed(2)}
+                  </p>
+                )}
+                <p>Quick Pick-Up: €5</p>{" "}
+                {item.days > 3 ? (
+                  <p className="book-days">
+                    Total discounted price: € {item.price.toFixed(2)}
+                  </p>
+                ) : (
+                  <p>Total price: € {item.price.toFixed(2)}</p>
+                )}
+              </>
             ) : (
-              <p className="book-days">
-                Regular price: € {item.price.toFixed(2)}
-              </p>
+              <>
+                {item.days > 3 && (
+                  <p className="book-days">
+                    Regular price: €{" "}
+                    {item.days * (item.book.type === "Book" ? 2 : 3)}
+                  </p>
+                )}
+
+                {item.days > 3 ? (
+                  <p className="book-days">
+                    Total discounted price: € {item.price.toFixed(2)}
+                  </p>
+                ) : (
+                  <p>Total price: € {item.price.toFixed(2)}</p>
+                )}
+              </>
             )}
 
-            {item.quickPickUp && <p>Quick Pick-Up: €5</p>}
-            {item.days > 3 ? (
-              <p className="book-days">
-                Total discounted price: € {item.price.toFixed(2)}
-              </p>
-            ) : (
-              <p> Total price: € {item.price.toFixed(2)}</p>
-            )}
             <button
               onClick={() => handleRemoveItem(item.book.id)}
               className="btn-modal-trigger red"
@@ -158,13 +179,16 @@ const CartPage: React.FC = () => {
         ))}
       </ul>
       <div className="center-align"> </div>
-      <h3>Total Amount: €{totalAmount.toFixed(2)}</h3>
+      <h3>Total Amount: €{totalAmount.toFixed(2)} </h3>
+      <p>Service fee of €3 is included </p>
       <h6>
-        <p>Service fee of €3 is included</p>
+        <a
+          className="waves-effect waves-light btn-large"
+          onClick={handleCheckout}
+        >
+          Checkout
+        </a>
       </h6>
-      <button onClick={handleCheckout} className="btn green">
-        Checkout
-      </button>
     </div>
   );
 };
