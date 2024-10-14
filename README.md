@@ -1,4 +1,4 @@
-steps to set up the project4
+steps to set up the project
 1. clone the project
 2. open a terminal window
 3. Execute the following commands:
