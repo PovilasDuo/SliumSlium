@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using LibraryReservationApp.Models;
+﻿using LibraryReservationApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryReservationApp.Data
 {
@@ -24,14 +24,14 @@ namespace LibraryReservationApp.Data
                 .HasKey(rb => new { rb.ReservationId, rb.BookId });
 
             modelBuilder.Entity<ReservationBook>()
-                .HasOne(rb => rb.Reservation)
-                .WithMany(r => r.ReservationBooks)
-                .HasForeignKey(rb => rb.ReservationId);
+                .HasOne<Book>()
+                .WithMany()
+                .HasForeignKey(rb => rb.BookId);
 
             modelBuilder.Entity<ReservationBook>()
-                .HasOne(rb => rb.Book)
-                .WithMany(b => b.ReservationBooks)
-                .HasForeignKey(rb => rb.BookId);
+                .HasOne<Reservation>()
+                .WithMany()
+                .HasForeignKey(rb => rb.ReservationId);
         }
     }
 }

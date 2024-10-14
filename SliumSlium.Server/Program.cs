@@ -53,8 +53,8 @@ using (var scope = app.Services.CreateScope())
         new Book { Id = 21, Name = "Fahrenheit 451", Year = 1953, Type = "Book", PictureUrl = "images/fahrenheit451.jpg" }
     );
     context.Reservations.AddRange(
-        new Reservation { Id = 1, ReservationType = "Book", QuickPickUp = true, Days = 10, TotalAmount = 0, ReservedAt = DateTime.Now },
-        new Reservation { Id = 2, ReservationType = "Book", QuickPickUp = true, Days = 10, TotalAmount = 0, ReservedAt = DateTime.Now }
+        new Reservation { Id = 1, QuickPickUp = true, TotalAmount = 0, ReservedAt = DateTime.Now },
+        new Reservation { Id = 2, QuickPickUp = true, TotalAmount = 0, ReservedAt = DateTime.Now }
     );
     context.ReservationBooks.AddRange(
         new ReservationBook { ReservationId = 1, BookId = 1 },

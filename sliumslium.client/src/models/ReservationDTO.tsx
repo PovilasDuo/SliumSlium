@@ -1,10 +1,9 @@
-import { BookDTO } from "./BookDTO";
+import { ReservationBookDTO } from "./ReservationBooksDTO";
 
 export interface ReservationDTO {
-    ReservationType: string;
-    QuickPickUp: boolean;
-    Days: number;
-    TotalAmount: number;
-    ReservedAt: Date;
-    Books: BookDTO[]
+    id? : number,
+    quickPickUp: boolean;
+    totalAmount: number;
+    reservedAt: Date;
+    reservationBooks: ReservationBookDTO[]
 }

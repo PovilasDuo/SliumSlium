@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../services/BookService";
-import { BookDTO } from "../models/BookDTO";
+import { Book } from "../models/Book";
 import GenericList from "./GenericList";
 
 export default function AllBooks() {
-  const [books, setBooks] = useState<BookDTO[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
 
   useEffect(() => {
     const getBooks = async () => {

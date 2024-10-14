@@ -6,6 +6,7 @@ interface CartItem {
   book: BookDTO;
   days: number;
   quickPickUp: boolean;
+  price: number;
 }
 
 const CartPage: React.FC = () => {
@@ -25,16 +26,28 @@ const CartPage: React.FC = () => {
     let total = 0;
 
     items.forEach((item) => {
-      const dailyRate = item.book.type === "Audiobook" ? 3 : 2;
-      total += dailyRate * item.days;
+      calculateItemPrice(item);
+      total += item.price;
     });
 
     if (items.some((item) => item.quickPickUp)) {
       total += 5;
     }
 
-    setTotalAmount(total);
+    total += 3;
+    setTotalAmount(parseFloat(total.toFixed(2)));
   };
+
+  const calculateItemPrice = (item: CartItem) => {
+    item.price = (item.book.type === "Audiobook" ? 3 : 2) * item.days;
+
+    if (item.days > 10) {
+        item.price *= 0.8;
+    } else if (item.days > 3) {
+        item.price *= 0.9;
+    }
+};
+
 
   const handleRemoveItem = (bookId: number) => {
     const updatedCart = cartItems.filter((item) => item.book.id !== bookId);
@@ -45,17 +58,13 @@ const CartPage: React.FC = () => {
 
   const handleCheckout = () => {
     const reservation: ReservationDTO = {
-      ReservationType: "Online",
-      QuickPickUp: cartItems.some((item) => item.quickPickUp),
-      Days: cartItems.reduce((acc, item) => acc + item.days, 0),
-      TotalAmount: totalAmount,
-      ReservedAt: new Date(),
-      Books: cartItems.map((item) => ({
-        id: item.book.id,
-        name: item.book.name,
-        year: item.book.year,
-        type: item.book.type,
-        pictureUrl: item.book.pictureUrl,
+      quickPickUp: cartItems.some((item) => item.quickPickUp),
+      totalAmount: totalAmount,
+      reservedAt: new Date(),
+      reservationBooks: cartItems.map((item) => ({
+        reservationId: 0, // Assuming this is handled by the backend
+        bookId: item.book.id,
+        days: item.days
       })),
     };
 
@@ -96,6 +105,7 @@ const CartPage: React.FC = () => {
         console.error("Error creating reservation:", error);
         M.toast({
           html: `Failed to complete the reservation: ${error.message}`,
+          classes: "red",
         });
       });
   };
@@ -123,11 +133,24 @@ const CartPage: React.FC = () => {
             <p className="book-year">Year: {item.book.year}</p>
             <p className="book-type">Type: {item.book.type}</p>
             <p className="book-days">Days: {item.days}</p>
-            <p className="book-price">
-              Price: €
-              {item.book.type === "Audiobook" ? item.days * 3 : item.days * 2}
-            </p>
+            {item.days > 3 ? (
+              <p className="book-days">
+                Regular price: € {item.days * (item.book.type === "Book" ? 3 : 2)}
+              </p>
+            ) : (
+              <p className="book-days">
+                Regular price: € {item.price.toFixed(2)}
+              </p>
+            )}
+
             {item.quickPickUp && <p>Quick Pick-Up: €5</p>}
+            {item.days > 3 ? (
+              <p className="book-days">
+                Total discounted price: € {item.price.toFixed(2)}
+              </p>
+            ) : (
+              <p> Total price: € {item.price.toFixed(2)}</p>
+            )}
             <button
               onClick={() => handleRemoveItem(item.book.id)}
               className="btn-modal-trigger red"
@@ -138,7 +161,8 @@ const CartPage: React.FC = () => {
         ))}
       </ul>
       <div className="center-align"> </div>
-      <h3>Total Amount: €{totalAmount}</h3>
+      <h3>Total Amount: €{totalAmount.toFixed(2)}</h3>
+      <h6><p>Service fee of €3 is included</p></h6>
       <button onClick={handleCheckout} className="btn green">
         Checkout
       </button>

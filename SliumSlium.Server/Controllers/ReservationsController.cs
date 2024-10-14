@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryReservationApp.Controllers
@@ -16,55 +16,46 @@ namespace LibraryReservationApp.Controllers
             _context = context;
         }
 
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservationDTO>>> GetReservations()
+        public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
         {
             var reservations = await _context.Reservations
-                .Include(r => r.ReservationBooks)
-                .ThenInclude(rb => rb.Book)
-                .Select(r => new ReservationDTO
+                .Include(static r => r.ReservationBooks)
+                .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    ReservationType = r.ReservationType,
                     QuickPickUp = r.QuickPickUp,
-                    Days = r.Days,
                     TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
-                    Books = r.ReservationBooks.Select(rb => new BookDTO
+                    ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
-                        Id = rb.Book.Id,
-                        Name = rb.Book.Name,
-                        Year = rb.Book.Year,
-                        Type = rb.Book.Type,
-                        PictureUrl = rb.Book.PictureUrl
+                        ReservationId = r.Id,
+                        BookId = rb.BookId,
+                        Days = rb.Days
                     }).ToList()
                 })
                 .ToListAsync();
-
             return Ok(reservations);
         }
 
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<ReservationDTO>> GetReservation(int id)
+        public async Task<ActionResult<Reservation>> GetReservation(int id)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.ReservationBooks)
-                .ThenInclude(rb => rb.Book)
-                .Select(r => new ReservationDTO
+                .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    ReservationType = r.ReservationType,
                     QuickPickUp = r.QuickPickUp,
-                    Days = r.Days,
                     TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
-                    Books = r.ReservationBooks.Select(rb => new BookDTO
+                    ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
-                        Id = rb.Book.Id,
-                        Name = rb.Book.Name,
-                        Year = rb.Book.Year,
-                        Type = rb.Book.Type,
-                        PictureUrl = rb.Book.PictureUrl
+                        ReservationId = r.Id,
+                        BookId = rb.BookId,
+                        Days = rb.Days
                     }).ToList()
                 })
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -78,19 +69,19 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ReservationDTO>> PostReservation([FromBody] ReservationDTO reservationDto)
+        public async Task<ActionResult<Reservation>> PostReservation([FromBody] Reservation reservation)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (reservationDto.Books == null || !reservationDto.Books.Any())
+            if (reservation.ReservationBooks == null || !reservation.ReservationBooks.Any())
             {
-                return BadRequest("At least one Book must be provided.");
+                return BadRequest("At least one book must be provided.");
             }
 
-            var bookIds = reservationDto.Books.Select(b => b.Id).ToList();
+            var bookIds = reservation.ReservationBooks.Select(b => b.BookId).ToList();
             var books = await _context.Books.Where(b => bookIds.Contains(b.Id)).ToListAsync();
 
             if (books.Count != bookIds.Count)
@@ -100,69 +91,59 @@ namespace LibraryReservationApp.Controllers
 
             decimal total = 0;
 
-            foreach (var book in books)
+            foreach (var reservationBook in reservation.ReservationBooks)
             {
-                decimal reservationSum = book.Type.Equals("Audiobook", StringComparison.OrdinalIgnoreCase) ? 3 : 2;
-                total += reservationSum * reservationDto.Days;
-            }
+                var book = books.FirstOrDefault(b => b.Id == reservationBook.BookId);
+                if (book == null)
+                {
+                    return BadRequest("Invalid BookId.");
+                }
 
-            if (reservationDto.Days > 10)
-            {
-                total *= 0.80m;
-            }
-            else if (reservationDto.Days > 3)
-            {
-                total *= 0.90m; 
+                decimal pricePerDay = book.Type.Equals("Audiobook", StringComparison.OrdinalIgnoreCase) ? 3 : 2;
+                decimal reservationSum = pricePerDay * reservationBook.Days;
+
+                if (reservationBook.Days > 10)
+                {
+                    reservationSum *= 0.80m;
+                }
+                else if (reservationBook.Days > 3)
+                {
+                    reservationSum *= 0.90m;
+                }
+
+                total += reservationSum;
             }
 
             total += 3;
-
-            if (reservationDto.QuickPickUp)
+            if (reservation.QuickPickUp)
             {
                 total += 5;
             }
 
-            var reservation = new Reservation
+            var newReservation = new Reservation
             {
-                ReservationType = reservationDto.ReservationType,
-                QuickPickUp = reservationDto.QuickPickUp,
-                Days = reservationDto.Days,
+                QuickPickUp = reservation.QuickPickUp,
                 TotalAmount = total,
                 ReservedAt = DateTime.UtcNow,
-                ReservationBooks = reservationDto.Books.Select(book => new ReservationBook
-                {
-                    BookId = book.Id
-                }).ToList()
+                ReservationBooks = new List<ReservationBook>()
             };
 
-            _context.Reservations.Add(reservation);
+            _context.Reservations.Add(newReservation);
             await _context.SaveChangesAsync();
 
-            await _context.Entry(reservation)
-                .Collection(r => r.ReservationBooks)
-                .Query()
-                .Include(rb => rb.Book)
-                .LoadAsync();
-
-            var createdReservationDto = new ReservationDTO
+            foreach (var reservationBook in reservation.ReservationBooks)
             {
-                Id = reservation.Id,
-                ReservationType = reservation.ReservationType,
-                QuickPickUp = reservation.QuickPickUp,
-                Days = reservation.Days,
-                TotalAmount = reservation.TotalAmount,
-                ReservedAt = reservation.ReservedAt,
-                Books = reservation.ReservationBooks.Select(rb => new BookDTO
+                newReservation.ReservationBooks.Add(new ReservationBook
                 {
-                    Id = rb.Book.Id,
-                    Name = rb.Book.Name,
-                    Year = rb.Book.Year,
-                    Type = rb.Book.Type,
-                    PictureUrl = rb.Book.PictureUrl
-                }).ToList()
-            };
+                    BookId = reservationBook.BookId,
+                    Days = reservationBook.Days,
+                    ReservationId = newReservation.Id
+                });
+            }
 
-            return CreatedAtAction(nameof(GetReservation), new { id = createdReservationDto.Id }, createdReservationDto);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);
         }
 
         [HttpDelete("{id}")]

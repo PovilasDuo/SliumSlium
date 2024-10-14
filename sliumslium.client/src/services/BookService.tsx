@@ -1,11 +1,11 @@
 import axios from "axios";
-import { BookDTO } from "../models/BookDTO";
+import { Book } from "../models/Book";
 
 export const fetchBooks = async (
   url: string = "https://localhost:7091/api/Books"
-): Promise<BookDTO[]> => {
+): Promise<Book[]> => {
   try {
-    const response = await axios.get<BookDTO[]>(`${url}`);
+    const response = await axios.get<Book[]>(`${url}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

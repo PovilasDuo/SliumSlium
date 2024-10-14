@@ -52,10 +52,10 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpGet("All")]
-        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
             var books = await _context.Books
-                .Select(b => new BookDTO
+                .Select(b => new Book
                 {
                     Id = b.Id,
                     Name = b.Name,
@@ -72,7 +72,6 @@ namespace LibraryReservationApp.Controllers
         {
             var book = await _context.Books
                 .Include(b => b.ReservationBooks)
-                .ThenInclude(rb => rb.Reservation)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
@@ -121,7 +120,6 @@ namespace LibraryReservationApp.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Books/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
