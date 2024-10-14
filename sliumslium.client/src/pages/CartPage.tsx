@@ -53,15 +53,16 @@ const CartPage: React.FC = () => {
 
   const handleCheckout = () => {
     const reservation: ReservationDTO = {
-      quickPickUp: cartItems.some((item) => item.quickPickUp),
       totalAmount: totalAmount,
       reservedAt: new Date(),
       reservationBooks: cartItems.map((item) => ({
-        reservationId: 0, // Assuming this is handled by the backend
+        reservationId: 0,
         bookId: item.book.id,
         days: item.days,
+        quickPickUp: item.quickPickUp,
       })),
     };
+    console.log(reservation.reservationBooks[0].quickPickUp);
 
     console.log(reservation);
     fetch("https://localhost:7091/api/Reservations", {

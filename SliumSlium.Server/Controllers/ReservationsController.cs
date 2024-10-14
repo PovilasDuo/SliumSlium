@@ -25,14 +25,14 @@ namespace LibraryReservationApp.Controllers
                 .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    QuickPickUp = r.QuickPickUp,
                     TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
                         ReservationId = r.Id,
                         BookId = rb.BookId,
-                        Days = rb.Days
+                        Days = rb.Days,
+                        QuickPickUp = rb.QuickPickUp,
                     }).ToList()
                 })
                 .ToListAsync();
@@ -48,14 +48,14 @@ namespace LibraryReservationApp.Controllers
                 .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    QuickPickUp = r.QuickPickUp,
                     TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
                         ReservationId = r.Id,
                         BookId = rb.BookId,
-                        Days = rb.Days
+                        Days = rb.Days,
+                        QuickPickUp = rb.QuickPickUp,
                     }).ToList()
                 })
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -110,7 +110,7 @@ namespace LibraryReservationApp.Controllers
                 {
                     reservationSum *= 0.90m;
                 }
-                if (reservation.QuickPickUp)
+                if (reservationBook.QuickPickUp)
                 {
                     total += 5;
                 }
@@ -121,7 +121,6 @@ namespace LibraryReservationApp.Controllers
 
             var newReservation = new Reservation
             {
-                QuickPickUp = reservation.QuickPickUp,
                 TotalAmount = total,
                 ReservedAt = DateTime.UtcNow,
                 ReservationBooks = new List<ReservationBook>()
@@ -136,7 +135,8 @@ namespace LibraryReservationApp.Controllers
                 {
                     BookId = reservationBook.BookId,
                     Days = reservationBook.Days,
-                    ReservationId = newReservation.Id
+                    ReservationId = newReservation.Id,
+                    QuickPickUp = reservationBook.QuickPickUp
                 });
             }
 

@@ -1,39 +1,40 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { BookDTO } from "../models/BookDTO";
 import { ReservationDTO } from "../models/ReservationDTO";
+import { BookDTO } from "../models/BookDTO";
+import { fetchBooks } from "../services/BookService";
+import { fetchReservations } from "../services/ReservationService";
 
 const Account: React.FC = () => {
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
   const [books, setBooks] = useState<BookDTO[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchReservations = async () => {
+    const loadData = async () => {
       try {
-        const response = await axios.get<ReservationDTO[]>("/api/Reservations");
-        setReservations(response.data);
-        console.log(response.data);
+        const [bookData, reservationData] = await Promise.all([
+          fetchBooks(),
+          fetchReservations(),
+        ]);
+        setBooks(bookData);
+        setReservations(reservationData);
       } catch (error) {
-        console.error("Error fetching reservations:", error);
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchBooks = async () => {
-      try {
-        const response = await axios.get<BookDTO[]>("/api/Books");
-        setBooks(response.data);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-      }
-    };
-
-    fetchReservations();
-    fetchBooks();
+    loadData();
   }, []);
 
   const findBook = (bookId: number): BookDTO | undefined => {
     return books.find((book) => book.id === bookId);
   };
+
+  if (loading) {
+    return <p>Loading reservations...</p>;
+  }
 
   return (
     <div>
@@ -45,7 +46,6 @@ const Account: React.FC = () => {
           {reservations.map((reservation) => (
             <div key={reservation.id} className="reservation-card">
               <h2>Reservation ID: {reservation.id}</h2>
-              <p>Quick Pickup: {reservation.quickPickUp ? "Yes" : "No"}</p>
               <p>Total Amount: ${reservation.totalAmount.toFixed(2)}</p>
               <p>
                 Reserved At:{" "}
@@ -69,6 +69,7 @@ const Account: React.FC = () => {
                             <strong>{book.name}</strong> ({book.year}) -{" "}
                             {book.type}
                           </p>
+                          <p>Quick Pickup: {reservedBook.quickPickUp ? "Yes" : "No"}</p>
                           <p>Days Reserved: {reservedBook.days}</p>
                         </div>
                       ) : (
