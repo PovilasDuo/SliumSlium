@@ -30,24 +30,19 @@ const CartPage: React.FC = () => {
       total += item.price;
     });
 
-    if (items.some((item) => item.quickPickUp)) {
-      total += 5;
-    }
-
     total += 3;
     setTotalAmount(parseFloat(total.toFixed(2)));
   };
 
   const calculateItemPrice = (item: CartItem) => {
     item.price = (item.book.type === "Audiobook" ? 3 : 2) * item.days;
-
     if (item.days > 10) {
-        item.price *= 0.8;
+      item.price *= 0.8;
     } else if (item.days > 3) {
-        item.price *= 0.9;
+      item.price *= 0.9;
     }
-};
-
+    item.price += item.quickPickUp === true ? 5 : 0;
+  };
 
   const handleRemoveItem = (bookId: number) => {
     const updatedCart = cartItems.filter((item) => item.book.id !== bookId);
@@ -64,7 +59,7 @@ const CartPage: React.FC = () => {
       reservationBooks: cartItems.map((item) => ({
         reservationId: 0, // Assuming this is handled by the backend
         bookId: item.book.id,
-        days: item.days
+        days: item.days,
       })),
     };
 
@@ -135,7 +130,8 @@ const CartPage: React.FC = () => {
             <p className="book-days">Days: {item.days}</p>
             {item.days > 3 ? (
               <p className="book-days">
-                Regular price: € {item.days * (item.book.type === "Book" ? 3 : 2)}
+                Regular price: €{" "}
+                {item.days * (item.book.type === "Book" ? 3 : 2)}
               </p>
             ) : (
               <p className="book-days">
@@ -162,7 +158,9 @@ const CartPage: React.FC = () => {
       </ul>
       <div className="center-align"> </div>
       <h3>Total Amount: €{totalAmount.toFixed(2)}</h3>
-      <h6><p>Service fee of €3 is included</p></h6>
+      <h6>
+        <p>Service fee of €3 is included</p>
+      </h6>
       <button onClick={handleCheckout} className="btn green">
         Checkout
       </button>

@@ -110,15 +110,14 @@ namespace LibraryReservationApp.Controllers
                 {
                     reservationSum *= 0.90m;
                 }
-
+                if (reservation.QuickPickUp)
+                {
+                    total += 5;
+                }
                 total += reservationSum;
             }
 
             total += 3;
-            if (reservation.QuickPickUp)
-            {
-                total += 5;
-            }
 
             var newReservation = new Reservation
             {

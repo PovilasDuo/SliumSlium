@@ -14,7 +14,7 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
-      <Search /> {/* Search is displayed constantly */}
+      <Search />
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />

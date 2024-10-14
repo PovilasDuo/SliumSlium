@@ -23,7 +23,7 @@ export default function Header() {
             </a>
           </li>
           <li>
-            <a href="/login">
+            <a href="/account">
               My reservations <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>
             </a>
           </li>
