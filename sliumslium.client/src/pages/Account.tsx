@@ -33,54 +33,74 @@ const Account: React.FC = () => {
   };
 
   if (loading) {
-    return <p>Loading reservations...</p>;
+    return (
+      <div className="container center-align">
+        <h3>Loading reservations...</h3>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>My Book Reservations</h1>
+    <div className="container center-align">
+      <h1>My book reservations</h1>
       {reservations.length === 0 ? (
-        <p>No reservations found.</p>
+        <div className="container center-align">
+          <h5>No reservations found :(</h5>
+        </div>
       ) : (
         <div>
-          {reservations.map((reservation) => (
-            <div key={reservation.id} className="reservation-card">
-              <h2>Reservation ID: {reservation.id}</h2>
-              <p>Total Amount: ${reservation.totalAmount.toFixed(2)}</p>
-              <p>
-                Reserved At:{" "}
-                {new Date(reservation.reservedAt).toLocaleDateString()}
-              </p>
+          <ul>
+            {reservations.map((reservation) => (
+              <li key={reservation.id} className="reservation-item">
+                <h5>Reservation number: {reservation.id}</h5>
+                <p>
+                  <i>
+                    {" "}
+                    Reserved at:{" "}
+                    {new Date(reservation.reservedAt).toLocaleDateString()}
+                  </i>
+                </p>
+                <h4>
+                  <p>
+                    Total amount: <b>€{reservation.totalAmount.toFixed(2)}</b>
+                  </p>
+                </h4>
 
-              <h3>Books Reserved:</h3>
-              <ul>
-                {reservation.reservationBooks.map((reservedBook) => {
-                  const book = findBook(reservedBook.bookId);
-                  return (
-                    <li key={reservedBook.bookId}>
-                      {book ? (
-                        <div className="book-card">
-                          <img
-                            src={book.pictureUrl}
-                            alt={book.name}
-                            width="50"
-                          />
-                          <p>
-                            <strong>{book.name}</strong> ({book.year}) -{" "}
-                            {book.type}
-                          </p>
-                          <p>Quick Pickup: {reservedBook.quickPickUp ? "Yes" : "No"}</p>
-                          <p>Days Reserved: {reservedBook.days}</p>
-                        </div>
-                      ) : (
-                        <p>Book ID: {reservedBook.bookId}</p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+                <ul className="book-list-row">
+                  {reservation.reservationBooks.map((reservedBook) => {
+                    const book = findBook(reservedBook.bookId);
+                    return (
+                      <li key={reservedBook.bookId} className="book-item">
+                        {book ? (
+                          <div className="book-card">
+                            <img
+                              src={`https://localhost:7091/${book.pictureUrl}`}
+                              alt={book.name}
+                              className="book-item-image"
+                            />
+                            <div className="book-details">
+                              <h3 className="book-title">{book.name}</h3>
+                              <p className="book-year">Year: {book.year}</p>
+                              <p className="book-type">Type: {book.type}</p>
+                              <p className="book-days">
+                                Days Reserved: {reservedBook.days}
+                              </p>
+                              <p className="book-pickup">
+                                Quick Pickup:{" "}
+                                {reservedBook.quickPickUp ? "Yes" : "No"}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p>Book ID: {reservedBook.bookId}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
