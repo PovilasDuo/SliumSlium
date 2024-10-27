@@ -16,26 +16,27 @@ namespace LibraryReservationApp.Controllers
             _context = context;
         }
 
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
         {
             var reservations = await _context.Reservations
-                .Include(static r => r.ReservationBooks)
+                .Include(r => r.Payment)
+                .Include(r => r.ReservationBooks)
+                .ThenInclude(rb => rb.Book)
                 .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
+                    Payment = r.Payment,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
-                        ReservationId = r.Id,
-                        BookId = rb.BookId,
+                        Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,
                     }).ToList()
                 })
                 .ToListAsync();
+
             return Ok(reservations);
         }
 
@@ -44,16 +45,17 @@ namespace LibraryReservationApp.Controllers
         public async Task<ActionResult<Reservation>> GetReservation(int id)
         {
             var reservation = await _context.Reservations
+                .Include(r => r.Payment)
                 .Include(r => r.ReservationBooks)
+                .ThenInclude(rb => rb.Book)
                 .Select(r => new Reservation
                 {
                     Id = r.Id,
-                    TotalAmount = r.TotalAmount,
                     ReservedAt = r.ReservedAt,
+                    Payment = r.Payment,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
-                        ReservationId = r.Id,
-                        BookId = rb.BookId,
+                        Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,
                     }).ToList()
@@ -81,7 +83,7 @@ namespace LibraryReservationApp.Controllers
                 return BadRequest("At least one book must be provided.");
             }
 
-            var bookIds = reservation.ReservationBooks.Select(b => b.BookId).ToList();
+            var bookIds = reservation.ReservationBooks.Select(rb => rb.Book.Id).ToList();
             var books = await _context.Books.Where(b => bookIds.Contains(b.Id)).ToListAsync();
 
             if (books.Count != bookIds.Count)
@@ -93,7 +95,7 @@ namespace LibraryReservationApp.Controllers
 
             foreach (var reservationBook in reservation.ReservationBooks)
             {
-                var book = books.FirstOrDefault(b => b.Id == reservationBook.BookId);
+                var book = books.FirstOrDefault(b => b.Id == reservationBook.Book.Id);
                 if (book == null)
                 {
                     return BadRequest("Invalid BookId.");
@@ -110,10 +112,12 @@ namespace LibraryReservationApp.Controllers
                 {
                     reservationSum *= 0.90m;
                 }
+
                 if (reservationBook.QuickPickUp)
                 {
                     total += 5;
                 }
+
                 total += reservationSum;
             }
 
@@ -121,7 +125,6 @@ namespace LibraryReservationApp.Controllers
 
             var newReservation = new Reservation
             {
-                TotalAmount = total,
                 ReservedAt = DateTime.UtcNow,
                 ReservationBooks = new List<ReservationBook>()
             };
@@ -133,13 +136,26 @@ namespace LibraryReservationApp.Controllers
             {
                 newReservation.ReservationBooks.Add(new ReservationBook
                 {
-                    BookId = reservationBook.BookId,
+                    Book = await _context.Books.FindAsync(reservationBook.Book.Id),
                     Days = reservationBook.Days,
-                    ReservationId = newReservation.Id,
+                    Reservation = newReservation,
                     QuickPickUp = reservationBook.QuickPickUp
                 });
             }
 
+            await _context.SaveChangesAsync();
+
+            var newPayment = new Payment
+            {
+                Amount = total,
+                PaymentDate = DateTime.UtcNow,
+                Reservation = newReservation
+            };
+
+            _context.Payments.Add(newPayment);
+            await _context.SaveChangesAsync();
+
+            newReservation.PaymentId = newPayment.Id;
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);

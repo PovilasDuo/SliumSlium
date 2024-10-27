@@ -9,15 +9,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import M from "materialize-css";
 import { useNavigate } from "react-router-dom";
+import { ReservationBookDTO } from "../models/ReservationBooksDTO";
+import { calculateItemPrice } from "./Utils/ReservationBookUtil";
 
 const ITEMS_PER_PAGE = 10;
-
-interface CartItem {
-  book: BookDTO;
-  days: string;
-  quickPickUp: boolean;
-  reservationType: string;
-}
 
 interface BookListProps {
   books: BookDTO[];
@@ -27,7 +22,7 @@ interface BookListProps {
 const BookList: React.FC<BookListProps> = ({ books, header }) => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart, setCart] = useState<CartItem[]>(() => {
+  const [cart, setCart] = useState<ReservationBookDTO[]>(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
@@ -38,10 +33,10 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const days = formData.get("days") as string;
+    const days = formData.get("days") as unknown as number;
     const quickPickUp = formData.get("quickPickup") === "on";
 
-    if (!days || parseInt(days) <= 0) {
+    if (!days || days <= 0) {
       M.toast({ html: "Please enter a valid number of days greater than 0." });
       return;
     }
@@ -54,12 +49,14 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
       return;
     }
 
-    const newCartItem: CartItem = {
+    const newCartItem: ReservationBookDTO = {
       book,
       days,
       quickPickUp,
-      reservationType: book.type,
+      price : 0,
     };
+    newCartItem.price = calculateItemPrice(newCartItem);
+
 
     const updatedCart = [...cart, newCartItem];
     setCart(updatedCart);

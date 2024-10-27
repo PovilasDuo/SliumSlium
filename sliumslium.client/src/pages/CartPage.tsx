@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { BookDTO } from "../models/BookDTO";
 import { ReservationDTO } from "../models/ReservationDTO";
-
-interface CartItem {
-  book: BookDTO;
-  days: number;
-  quickPickUp: boolean;
-  price: number;
-}
+import { ReservationBookDTO } from "../models/ReservationBooksDTO";
+import { PaymentDTO } from "../models/PaymentDTO";
+import { calculateItemPrice } from "../components/Utils/ReservationBookUtil";
 
 const CartPage: React.FC = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<ReservationBookDTO[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
   useEffect(() => {
@@ -22,26 +17,16 @@ const CartPage: React.FC = () => {
     }
   }, []);
 
-  const calculateTotal = (items: CartItem[]) => {
+  const calculateTotal = (items: ReservationBookDTO[]) => {
     let total = 0;
 
     items.forEach((item) => {
-      calculateItemPrice(item);
-      total += item.price;
+      const itemPrice = calculateItemPrice(item);
+      total += itemPrice;
     });
 
-    total += 3;
+    total += 3; 
     setTotalAmount(parseFloat(total.toFixed(2)));
-  };
-
-  const calculateItemPrice = (item: CartItem) => {
-    item.price = (item.book.type === "Audiobook" ? 3 : 2) * item.days;
-    if (item.days > 10) {
-      item.price *= 0.8;
-    } else if (item.days > 3) {
-      item.price *= 0.9;
-    }
-    item.price += item.quickPickUp === true ? 5 : 0;
   };
 
   const handleRemoveItem = (bookId: number) => {
@@ -52,25 +37,44 @@ const CartPage: React.FC = () => {
   };
 
   const handleCheckout = () => {
+    const payment: PaymentDTO = {
+      id: 0, // Ensure this is set to the correct initial value
+      amount: totalAmount,
+      paymentDate: new Date(),
+      reservationId: 0, // Set to 0 if a new reservation
+    };
+  
     const reservation: ReservationDTO = {
-      totalAmount: totalAmount,
+      id: 0, // Ensure this is set to the correct initial value
       reservedAt: new Date(),
+      paymentId: 0, // Set to 0 for new reservation
+      payment: payment,
       reservationBooks: cartItems.map((item) => ({
-        reservationId: 0,
+        id: 0, // Set to 0 for new reservation books
+        reservationId: 0, // Set to 0 for new reservation books
         bookId: item.book.id,
+        book: {
+          id: item.book.id,
+          name: item.book.name,
+          year: item.book.year,
+          type: item.book.type,
+          pictureUrl: item.book.pictureUrl,
+        },
         days: item.days,
         quickPickUp: item.quickPickUp,
+        price: item.price, // Ensure this is a number
       })),
     };
-    console.log(reservation.reservationBooks[0].quickPickUp);
-
-    console.log(reservation);
+  
+    // Log the reservation object for debugging
+    console.log("Payload being sent:", JSON.stringify(reservation, null, 2)); 
+  
     fetch("https://localhost:7091/api/Reservations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(reservation),
+      body: JSON.stringify(reservation), // Send as a single object
     })
       .then((response) => {
         if (!response.ok) {
@@ -90,7 +94,7 @@ const CartPage: React.FC = () => {
       })
       .then((data) => {
         M.toast({
-          html: `Reservation completed! Total Amount: €${data.totalAmount}`,
+          html: `Reservation completed! Total Amount: €${reservation.payment.amount}`,
           classes: "green",
         });
         localStorage.removeItem("cart");
@@ -105,6 +109,9 @@ const CartPage: React.FC = () => {
         });
       });
   };
+  
+  
+  
 
   if (cartItems.length === 0) {
     return (

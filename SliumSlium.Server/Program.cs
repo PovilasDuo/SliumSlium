@@ -58,41 +58,52 @@ using (var scope = app.Services.CreateScope())
         new Reservation
         {
             Id = 1,
-            TotalAmount = 15.00m,
             ReservedAt = DateTime.UtcNow.AddDays(-1),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { ReservationId = 1, BookId = 1, Days = 5, QuickPickUp = true },
-                new ReservationBook { ReservationId = 1, BookId = 2, Days = 3, QuickPickUp = false }
+                new ReservationBook { Book = context.Books.Find(1), Days = 5, QuickPickUp = true },
+                new ReservationBook { Book = context.Books.Find(2), Days = 3, QuickPickUp = false }
+            },
+            Payment = new Payment
+            {
+                Amount = 25.00m,
+                PaymentDate = DateTime.UtcNow.AddDays(-1),
             }
         },
         new Reservation
         {
             Id = 2,
-            TotalAmount = 10.00m,
             ReservedAt = DateTime.UtcNow.AddDays(-2),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { ReservationId = 2, BookId = 3, Days = 7, QuickPickUp = true },
-                new ReservationBook { ReservationId = 2, BookId = 4, Days = 2, QuickPickUp = false }
+                new ReservationBook { Book = context.Books.Find(3), Days = 7, QuickPickUp = true },
+                new ReservationBook { Book = context.Books.Find(4), Days = 2, QuickPickUp = false }
+            },
+            Payment = new Payment
+            {
+                Amount = 18.00m,
+                PaymentDate = DateTime.UtcNow.AddDays(-2),
             }
         },
         new Reservation
         {
             Id = 3,
-            TotalAmount = 20.00m,
             ReservedAt = DateTime.UtcNow.AddDays(-3),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { ReservationId = 3, BookId = 5, Days = 10, QuickPickUp = false },
-                new ReservationBook { ReservationId = 3, BookId = 6, Days = 4, QuickPickUp = true }
+                new ReservationBook { Book = context.Books.Find(5), Days = 10, QuickPickUp = false },
+                new ReservationBook { Book = context.Books.Find(6), Days = 4, QuickPickUp = true }
+            },
+            Payment = new Payment
+            {
+                Amount = 30.00m,
+                PaymentDate = DateTime.UtcNow.AddDays(-3),
             }
         }
     };
-
+    await context.SaveChangesAsync();
     context.Reservations.AddRange(reservations);
-
-    context.SaveChanges();
+    await context.SaveChangesAsync();
 }
 
 if (app.Environment.IsDevelopment())

@@ -16,6 +16,8 @@ namespace LibraryReservationApp.Data
 
         public DbSet<ReservationBook> ReservationBooks { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -24,14 +26,20 @@ namespace LibraryReservationApp.Data
                 .HasKey(rb => new { rb.ReservationId, rb.BookId });
 
             modelBuilder.Entity<ReservationBook>()
-                .HasOne<Book>()
-                .WithMany()
+                .HasOne(rb => rb.Book) 
+                .WithMany(b => b.ReservationBooks) 
                 .HasForeignKey(rb => rb.BookId);
 
             modelBuilder.Entity<ReservationBook>()
-                .HasOne<Reservation>()
-                .WithMany()
+                .HasOne(rb => rb.Reservation)
+                .WithMany(r => r.ReservationBooks)
                 .HasForeignKey(rb => rb.ReservationId);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Reservation)
+                .WithOne(r => r.Payment)
+                .HasForeignKey<Reservation>(r => r.PaymentId)
+                .IsRequired(false);
         }
     }
 }
