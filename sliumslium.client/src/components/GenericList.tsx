@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import M from "materialize-css";
 import { useNavigate } from "react-router-dom";
-import { ReservationBookDTO } from "../models/ReservationBooksDTO";
+import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 import { calculateItemPrice } from "./Utils/ReservationBookUtil";
 
 const ITEMS_PER_PAGE = 10;
@@ -22,7 +22,7 @@ interface BookListProps {
 const BookList: React.FC<BookListProps> = ({ books, header }) => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart, setCart] = useState<ReservationBookDTO[]>(() => {
+  const [cart, setCart] = useState<ReservationBooksPostDTO[]>(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
@@ -49,14 +49,13 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
       return;
     }
 
-    const newCartItem: ReservationBookDTO = {
+    const newCartItem: ReservationBooksPostDTO = {
       book,
       days,
       quickPickUp,
-      price : 0,
+      price: 0,
     };
     newCartItem.price = calculateItemPrice(newCartItem);
-
 
     const updatedCart = [...cart, newCartItem];
     setCart(updatedCart);

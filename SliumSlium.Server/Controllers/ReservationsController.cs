@@ -1,5 +1,6 @@
 using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
+using LibraryReservationApp.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,7 @@ namespace LibraryReservationApp.Controllers
                         Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,
+                        Price = rb.Price
                     }).ToList()
                 })
                 .ToListAsync();
@@ -58,6 +60,7 @@ namespace LibraryReservationApp.Controllers
                         Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,
+                        Price = rb.Price
                     }).ToList()
                 })
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -91,37 +94,11 @@ namespace LibraryReservationApp.Controllers
                 return BadRequest("One or more BookIds are invalid.");
             }
 
-            decimal total = 0;
-
             foreach (var reservationBook in reservation.ReservationBooks)
             {
                 var book = books.FirstOrDefault(b => b.Id == reservationBook.Book.Id);
-                if (book == null)
-                {
-                    return BadRequest("Invalid BookId.");
-                }
-
-                decimal pricePerDay = book.Type.Equals("Audiobook", StringComparison.OrdinalIgnoreCase) ? 3 : 2;
-                decimal reservationSum = pricePerDay * reservationBook.Days;
-
-                if (reservationBook.Days > 10)
-                {
-                    reservationSum *= 0.80m;
-                }
-                else if (reservationBook.Days > 3)
-                {
-                    reservationSum *= 0.90m;
-                }
-
-                if (reservationBook.QuickPickUp)
-                {
-                    total += 5;
-                }
-
-                total += reservationSum;
+                if (book == null) return BadRequest("Invalid BookId.");
             }
-
-            total += 3;
 
             var newReservation = new Reservation
             {
@@ -139,7 +116,11 @@ namespace LibraryReservationApp.Controllers
                     Book = await _context.Books.FindAsync(reservationBook.Book.Id),
                     Days = reservationBook.Days,
                     Reservation = newReservation,
-                    QuickPickUp = reservationBook.QuickPickUp
+                    QuickPickUp = reservationBook.QuickPickUp,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(
+                    reservationBook.Book,
+                    reservationBook.Days,
+                    reservationBook.QuickPickUp)
                 });
             }
 
@@ -147,7 +128,7 @@ namespace LibraryReservationApp.Controllers
 
             var newPayment = new Payment
             {
-                Amount = total,
+                Amount = ReservationBookUtil.CalculateTotalAmount((List<ReservationBook>)reservation.ReservationBooks),
                 PaymentDate = DateTime.UtcNow,
                 Reservation = newReservation
             };

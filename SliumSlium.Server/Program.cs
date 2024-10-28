@@ -1,5 +1,6 @@
 using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
+using LibraryReservationApp.Utils;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,13 +62,42 @@ using (var scope = app.Services.CreateScope())
             ReservedAt = DateTime.UtcNow.AddDays(-1),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { Book = context.Books.Find(1), Days = 5, QuickPickUp = true },
-                new ReservationBook { Book = context.Books.Find(2), Days = 3, QuickPickUp = false }
+                new ReservationBook
+                {
+                    Book = context.Books.Find(1),
+                    Days = 5,
+                    QuickPickUp = true,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(1), 5, true)
+                },
+                new ReservationBook
+                {
+                    Book = context.Books.Find(2),
+                    Days = 3,
+                    QuickPickUp = false,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(2), 3, false)
+                }
             },
             Payment = new Payment
             {
-                Amount = 25.00m,
+                Amount = ReservationBookUtil.CalculateTotalAmount(new List<ReservationBook>
+                {
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(1),
+                        Days = 5,
+                        QuickPickUp = true,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(1), 5, true)
+                    },
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(2),
+                        Days = 3,
+                        QuickPickUp = false,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(2), 3, false)
+                    }
+                }),
                 PaymentDate = DateTime.UtcNow.AddDays(-1),
+                ReservationId = 1
             }
         },
         new Reservation
@@ -76,13 +106,42 @@ using (var scope = app.Services.CreateScope())
             ReservedAt = DateTime.UtcNow.AddDays(-2),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { Book = context.Books.Find(3), Days = 7, QuickPickUp = true },
-                new ReservationBook { Book = context.Books.Find(4), Days = 2, QuickPickUp = false }
+                new ReservationBook
+                {
+                    Book = context.Books.Find(3),
+                    Days = 7,
+                    QuickPickUp = true,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(3), 7, true)
+                },
+                new ReservationBook
+                {
+                    Book = context.Books.Find(4),
+                    Days = 2,
+                    QuickPickUp = false,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(4), 2, false)
+                }
             },
             Payment = new Payment
             {
-                Amount = 18.00m,
+                Amount = ReservationBookUtil.CalculateTotalAmount(new List<ReservationBook>
+                {
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(3),
+                        Days = 7,
+                        QuickPickUp = true,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(3), 7, true)
+                    },
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(4),
+                        Days = 2,
+                        QuickPickUp = false,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(4), 2, false)
+                    }
+                }),
                 PaymentDate = DateTime.UtcNow.AddDays(-2),
+                ReservationId = 2
             }
         },
         new Reservation
@@ -91,16 +150,46 @@ using (var scope = app.Services.CreateScope())
             ReservedAt = DateTime.UtcNow.AddDays(-3),
             ReservationBooks = new List<ReservationBook>
             {
-                new ReservationBook { Book = context.Books.Find(5), Days = 10, QuickPickUp = false },
-                new ReservationBook { Book = context.Books.Find(6), Days = 4, QuickPickUp = true }
+                new ReservationBook
+                {
+                    Book = context.Books.Find(5),
+                    Days = 10,
+                    QuickPickUp = false,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(5), 10, false)
+                },
+                new ReservationBook
+                {
+                    Book = context.Books.Find(6),
+                    Days = 4,
+                    QuickPickUp = true,
+                    Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(6), 4, true)
+                }
             },
             Payment = new Payment
             {
-                Amount = 30.00m,
+                Amount = ReservationBookUtil.CalculateTotalAmount(new List<ReservationBook>
+                {
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(5),
+                        Days = 10,
+                        QuickPickUp = false,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(5), 10, false)
+                    },
+                    new ReservationBook
+                    {
+                        Book = context.Books.Find(6),
+                        Days = 4,
+                        QuickPickUp = true,
+                        Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(6), 4, true)
+                    }
+                }),
                 PaymentDate = DateTime.UtcNow.AddDays(-3),
+                ReservationId = 3
             }
         }
     };
+
     await context.SaveChangesAsync();
     context.Reservations.AddRange(reservations);
     await context.SaveChangesAsync();

@@ -1,6 +1,6 @@
-import { ReservationBookDTO } from "../../models/ReservationBooksDTO";
+import { ReservationBooksPostDTO } from "../../models/ReservationBooksPostDTO";
 
-export const calculateItemPrice = (item: ReservationBookDTO) => {
+export const calculateItemPrice = (item: ReservationBooksPostDTO) => {
     let price = (item.book.type === "Audiobook" ? 3 : 2) * item.days;
     if (item.days > 10) {
       price *= 0.8;

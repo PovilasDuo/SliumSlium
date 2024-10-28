@@ -12,6 +12,6 @@ namespace LibraryReservationApp.Models
         public Book? Book { get; set; }
         public int Days { get; set; }
         public bool QuickPickUp { get; set; }
-        public double price { get; set; }
+        public double Price { get; set; }
     }
 }

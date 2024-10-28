@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ReservationDTO } from "../models/ReservationDTO";
-import { ReservationBookDTO } from "../models/ReservationBooksDTO";
 import { PaymentDTO } from "../models/PaymentDTO";
 import { calculateItemPrice } from "../components/Utils/ReservationBookUtil";
+import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 
 const CartPage: React.FC = () => {
-  const [cartItems, setCartItems] = useState<ReservationBookDTO[]>([]);
+  const [cartItems, setCartItems] = useState<ReservationBooksPostDTO[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const CartPage: React.FC = () => {
     }
   }, []);
 
-  const calculateTotal = (items: ReservationBookDTO[]) => {
+  const calculateTotal = (items: ReservationBooksPostDTO[]) => {
     let total = 0;
 
     items.forEach((item) => {
@@ -25,7 +25,7 @@ const CartPage: React.FC = () => {
       total += itemPrice;
     });
 
-    total += 3; 
+    total += 3;
     setTotalAmount(parseFloat(total.toFixed(2)));
   };
 
@@ -38,20 +38,20 @@ const CartPage: React.FC = () => {
 
   const handleCheckout = () => {
     const payment: PaymentDTO = {
-      id: 0, // Ensure this is set to the correct initial value
+      id: 0,
       amount: totalAmount,
       paymentDate: new Date(),
-      reservationId: 0, // Set to 0 if a new reservation
+      reservationId: 0,
     };
-  
+
     const reservation: ReservationDTO = {
-      id: 0, // Ensure this is set to the correct initial value
+      id: 0,
       reservedAt: new Date(),
-      paymentId: 0, // Set to 0 for new reservation
+      paymentId: 0,
       payment: payment,
       reservationBooks: cartItems.map((item) => ({
-        id: 0, // Set to 0 for new reservation books
-        reservationId: 0, // Set to 0 for new reservation books
+        id: 0,
+        reservationId: 0,
         bookId: item.book.id,
         book: {
           id: item.book.id,
@@ -62,19 +62,16 @@ const CartPage: React.FC = () => {
         },
         days: item.days,
         quickPickUp: item.quickPickUp,
-        price: item.price, // Ensure this is a number
+        price: item.price,
       })),
     };
-  
-    // Log the reservation object for debugging
-    console.log("Payload being sent:", JSON.stringify(reservation, null, 2)); 
-  
+
     fetch("https://localhost:7091/api/Reservations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(reservation), // Send as a single object
+      body: JSON.stringify(reservation),
     })
       .then((response) => {
         if (!response.ok) {
@@ -94,7 +91,7 @@ const CartPage: React.FC = () => {
       })
       .then((data) => {
         M.toast({
-          html: `Reservation completed! Total Amount: €${reservation.payment.amount}`,
+          html: `Reservation completed! Total Amount: €${data.payment.amount.toFixed(2)}`,
           classes: "green",
         });
         localStorage.removeItem("cart");
@@ -109,9 +106,6 @@ const CartPage: React.FC = () => {
         });
       });
   };
-  
-  
-  
 
   if (cartItems.length === 0) {
     return (
