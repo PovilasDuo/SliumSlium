@@ -2,6 +2,7 @@ using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace LibraryReservationApp.Controllers
 {
@@ -9,11 +10,13 @@ namespace LibraryReservationApp.Controllers
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
+        private readonly IWebHostEnvironment _env;
         private readonly LibraryContext _context;
 
-        public BooksController(LibraryContext context)
+        public BooksController(LibraryContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet]
@@ -83,8 +86,46 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        public async Task<IActionResult> PostBook([FromForm] IFormCollection formData)
         {
+            if (!formData.TryGetValue("book", out var bookJson))
+            {
+                return BadRequest("Book data is missing.");
+            }
+            Console.WriteLine($"Received Book JSON: {bookJson[0]}");
+
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            Book? book = JsonSerializer.Deserialize<Book>(bookJson[0], options);
+
+            if (book == null || string.IsNullOrWhiteSpace(book.Name) || string.IsNullOrWhiteSpace(book.Type))
+            {
+                return BadRequest("Invalid book data. Make sure all required fields are present.");
+            }
+
+            var existingBook = await _context.Books.FirstOrDefaultAsync(b => b.Name.Equals(book.Name, StringComparison.OrdinalIgnoreCase) && b.Type.Equals(book.Type, StringComparison.OrdinalIgnoreCase));
+
+            if (existingBook != null) return Conflict("A book with the same name and type already exists.");
+
+            IFormFile? file = formData.Files.FirstOrDefault();
+            if (file != null && file.Length > 0)
+            {
+                var uploads = Path.Combine(_env.WebRootPath, "images");
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var filePath = Path.Combine(uploads, fileName);
+
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                book.PictureUrl = $"images/{fileName}";
+            }
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 

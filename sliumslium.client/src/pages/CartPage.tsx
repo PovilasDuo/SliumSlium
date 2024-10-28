@@ -3,6 +3,8 @@ import { ReservationDTO } from "../models/ReservationDTO";
 import { PaymentDTO } from "../models/PaymentDTO";
 import { calculateItemPrice } from "../components/Utils/ReservationBookUtil";
 import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
+import { postReservation } from "../services/ReservationService";
+import axios from "axios";
 
 const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<ReservationBooksPostDTO[]>([]);
@@ -36,7 +38,7 @@ const CartPage: React.FC = () => {
     calculateTotal(updatedCart);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const payment: PaymentDTO = {
       id: 0,
       amount: totalAmount,
@@ -66,45 +68,34 @@ const CartPage: React.FC = () => {
       })),
     };
 
-    fetch("https://localhost:7091/api/Reservations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reservation),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((errorData) => {
-            if (response.status === 400) {
-              const errorMessage =
-                errorData.message || "Invalid reservation data.";
-              throw new Error(errorMessage);
-            } else {
-              throw new Error(
-                `Error: ${response.status} ${response.statusText}`
-              );
-            }
-          });
-        }
-        return response.json();
-      })
-      .then((data) => {
-        M.toast({
-          html: `Reservation completed! Total Amount: €${data.payment.amount.toFixed(2)}`,
-          classes: "green",
-        });
-        localStorage.removeItem("cart");
-        setCartItems([]);
-        setTotalAmount(0);
-      })
-      .catch((error) => {
-        console.error("Error creating reservation:", error);
-        M.toast({
-          html: `Failed to complete the reservation: ${error.message}`,
-          classes: "red",
-        });
+    try {
+      const responseData = await postReservation(reservation);
+      M.toast({
+        html: `Reservation completed! Total Amount: €${responseData.payment.amount.toFixed(
+          2
+        )}`,
+        classes: "green",
       });
+      localStorage.removeItem("cart");
+      setCartItems([]);
+      setTotalAmount(0);
+    } catch (error) {
+      let errorMessage: string;
+
+      if (axios.isAxiosError(error)) {
+        errorMessage =
+          error.response?.data?.message || "Failed to complete the reservation";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = "An unknown error occurred.";
+      }
+      console.error("Error creating reservation:", error);
+      M.toast({
+        html: `Failed to complete the reservation: ${errorMessage}`,
+        classes: "red",
+      });
+    }
   };
 
   if (cartItems.length === 0) {

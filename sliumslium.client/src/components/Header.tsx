@@ -4,6 +4,7 @@ import {
   faHome,
   faUser,
   faCartShopping,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
@@ -30,6 +31,11 @@ export default function Header() {
           <li>
             <a href="/cart">
               Cart <FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon>
+            </a>
+          </li>
+          <li>
+            <a href="/book-creation">
+              Add book <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
             </a>
           </li>
         </ul>
