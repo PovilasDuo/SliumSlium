@@ -11,8 +11,10 @@ export const fetchBooks = async (
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.message);
       console.error("Response data:", error.response?.data);
+      M.toast({ html: "Failed to fetch books", classes: "red" });
     } else {
       console.error("Unexpected error:", error);
+      M.toast({ html: "An unexpected error occurred", classes: "red" });
     }
     throw error;
   }
@@ -95,4 +97,48 @@ export const deleteBook = async (id: number): Promise<number> => {
     }
   }
   return -1;
+};
+
+export const getBookById = async (id: number): Promise<BookDTO> => {
+  const url = `https://localhost:7091/api/Books/${id}`;
+  try {
+    const response = await axios.get<BookDTO>(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.message);
+      console.error("Response data:", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    throw error;
+  }
+};
+
+export const updateBook = async (book: BookDTO): Promise<void> => {
+  const url = `https://localhost:7091/api/Books/${book.id}`;
+
+  try {
+    const response = await axios.put(url, book);
+    if (response.status === 200) {
+      M.toast({ html: "Book was updated successfully", classes: "green" });
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      const errorMessage = error.response.data?.message || "Invalid book data";
+      console.error("Validation error:", errorMessage);
+      M.toast({
+        html: `Failed to update book: ${errorMessage}`,
+        classes: "red",
+      });
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("Error updating book:", errorMessage);
+      M.toast({
+        html: `Failed to update book: ${errorMessage}`,
+        classes: "red",
+      });
+    }
+  }
 };

@@ -9,6 +9,7 @@ import Account from "./pages/Account";
 import SearchResults from "./components/SearchResults";
 import CartPage from "./pages/CartPage";
 import BookCreation from "./pages/BookCreation";
+import BookUpdate from "./pages/BookUpdate";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/search-results" element={<SearchResults />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/book-creation" element={<BookCreation />} />
+          <Route path="/book-update/:id" element={<BookUpdate />} />
           <Route path="/*" element={<HomePage />} />
         </Routes>
       </main>

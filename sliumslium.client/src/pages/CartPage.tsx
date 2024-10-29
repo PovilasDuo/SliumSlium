@@ -4,7 +4,6 @@ import { PaymentDTO } from "../models/PaymentDTO";
 import { calculateItemPrice } from "../components/Utils/ReservationBookUtil";
 import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 import { postReservation } from "../services/ReservationService";
-import axios from "axios";
 
 const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<ReservationBooksPostDTO[]>([]);
@@ -80,21 +79,7 @@ const CartPage: React.FC = () => {
       setCartItems([]);
       setTotalAmount(0);
     } catch (error) {
-      let errorMessage: string;
-
-      if (axios.isAxiosError(error)) {
-        errorMessage =
-          error.response?.data?.message || "Failed to complete the reservation";
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      }
-      console.error("Error creating reservation:", error);
-      M.toast({
-        html: `Failed to complete the reservation: ${errorMessage}`,
-        classes: "red",
-      });
+      console.error(error);
     }
   };
 

@@ -127,8 +127,18 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id)
+        public async Task<IActionResult> PutBook(int id, [FromBody] Book updatedBook)
         {
+            var book = await _context.Books.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound(new { message = "Book not found" });
+            }
+            book.Name = updatedBook.Name;
+            book.Year = updatedBook.Year;
+            book.Type = updatedBook.Type;
+            book.PictureUrl = updatedBook.PictureUrl;
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -145,7 +155,7 @@ namespace LibraryReservationApp.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new { message = "Book updated successfully", book });
         }
 
         [HttpDelete("{id}")]

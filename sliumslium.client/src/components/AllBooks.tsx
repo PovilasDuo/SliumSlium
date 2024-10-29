@@ -8,12 +8,8 @@ export default function AllBooks() {
 
   useEffect(() => {
     const getBooks = async () => {
-      try {
-        const fetchedBooks = await fetchBooks();
-        setBooks(fetchedBooks);
-      } catch (err) {
-        console.log(err);
-      }
+      const fetchedBooks = await fetchBooks();
+      setBooks(fetchedBooks);
     };
 
     getBooks();

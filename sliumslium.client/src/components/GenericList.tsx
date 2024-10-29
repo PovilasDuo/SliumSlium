@@ -71,6 +71,11 @@ const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
     }
   };
 
+  const handleBookUpdate = (bookId: number) => {
+    closeModal(bookId);
+    navigate(`/book-update/${bookId}`);
+  };
+
   const handleSubmit = async (e: React.FormEvent, book: BookDTO) => {
     e.preventDefault();
 
@@ -289,7 +294,10 @@ const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
                       </div>
 
                       <div style={{ padding: "20px" }}>
-                        <button className="btn-floating btn-large waves-effect waves-light">
+                        <button
+                          className="btn-floating btn-large waves-effect waves-light"
+                          onClick={() => handleBookUpdate(book.id)}
+                        >
                           <FontAwesomeIcon icon={faPen} />
                         </button>
                       </div>
