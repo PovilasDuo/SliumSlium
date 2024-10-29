@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { ReservationDTO } from "../models/ReservationDTO";
 import { fetchReservations } from "../services/ReservationService";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { extendReservationDayByOne } from "../services/BookReservationService";
 
 const Account: React.FC = () => {
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
@@ -19,7 +22,12 @@ const Account: React.FC = () => {
     };
 
     loadData();
-  }, []);
+  }, [reservations]);
+
+  const extendReservation = async (bookId: number) => {
+    await extendReservationDayByOne(bookId);
+    setReservations(reservations);
+  };
 
   if (loading) {
     return (
@@ -82,9 +90,16 @@ const Account: React.FC = () => {
                             {reservedBook.quickPickUp ? "Yes" : "No"}
                           </p>
                           <p className="book-days">
-                            Price:{" "}
-                            {reservedBook.price.toFixed(2)}
+                            Price: {reservedBook.price.toFixed(2)}
                           </p>
+                          <button
+                            className="btn-large waves-effect waves-light"
+                            onClick={() =>
+                              extendReservation(reservedBook.book.id)
+                            }
+                          >
+                            Extend: <FontAwesomeIcon icon={faPlus} />
+                          </button>
                         </div>
                       </div>
                     </li>

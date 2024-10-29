@@ -8,7 +8,6 @@ export const fetchReservations = async (
 ): Promise<ReservationDTO[]> => {
   try {
     const response = await axios.get<ReservationDTO[]>(url);
-    M.toast({ html: "Reservations fetched successfully", classes: "green" });
     return response.data;
   } catch (error) {
     let errorMessage: string;

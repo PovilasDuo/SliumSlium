@@ -65,14 +65,18 @@ using (var scope = app.Services.CreateScope())
             {
                 new ReservationBook
                 {
+                    Id = 1,
                     Book = context.Books.Find(1),
+                    BookId = 1,
                     Days = 5,
                     QuickPickUp = true,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(1), 5, true)
                 },
                 new ReservationBook
                 {
+                    Id = 2,
                     Book = context.Books.Find(2),
+                    BookId = 2,
                     Days = 3,
                     QuickPickUp = false,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(2), 3, false)
@@ -84,14 +88,18 @@ using (var scope = app.Services.CreateScope())
                 {
                     new ReservationBook
                     {
+                        Id = 1,
                         Book = context.Books.Find(1),
+                        BookId = 1,
                         Days = 5,
                         QuickPickUp = true,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(1), 5, true)
                     },
                     new ReservationBook
                     {
+                        Id = 2,
                         Book = context.Books.Find(2),
+                        BookId = 2,
                         Days = 3,
                         QuickPickUp = false,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(2), 3, false)
@@ -109,14 +117,18 @@ using (var scope = app.Services.CreateScope())
             {
                 new ReservationBook
                 {
+                    Id = 3,
                     Book = context.Books.Find(3),
+                    BookId = 3,
                     Days = 7,
                     QuickPickUp = true,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(3), 7, true)
                 },
                 new ReservationBook
                 {
+                    Id = 4,
                     Book = context.Books.Find(4),
+                    BookId = 4,
                     Days = 2,
                     QuickPickUp = false,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(4), 2, false)
@@ -128,14 +140,18 @@ using (var scope = app.Services.CreateScope())
                 {
                     new ReservationBook
                     {
+                        Id = 3,
                         Book = context.Books.Find(3),
+                        BookId = 3,
                         Days = 7,
                         QuickPickUp = true,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(3), 7, true)
                     },
                     new ReservationBook
                     {
+                        Id = 4,
                         Book = context.Books.Find(4),
+                        BookId = 4,
                         Days = 2,
                         QuickPickUp = false,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(4), 2, false)
@@ -153,14 +169,18 @@ using (var scope = app.Services.CreateScope())
             {
                 new ReservationBook
                 {
+                    Id = 5,
                     Book = context.Books.Find(5),
+                    BookId = 5,
                     Days = 10,
                     QuickPickUp = false,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(5), 10, false)
                 },
                 new ReservationBook
                 {
+                    Id = 6,
                     Book = context.Books.Find(6),
+                    BookId = 6,
                     Days = 4,
                     QuickPickUp = true,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(6), 4, true)
@@ -172,14 +192,18 @@ using (var scope = app.Services.CreateScope())
                 {
                     new ReservationBook
                     {
+                        Id = 5,
                         Book = context.Books.Find(5),
+                        BookId = 5,
                         Days = 10,
                         QuickPickUp = false,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(5), 10, false)
                     },
                     new ReservationBook
                     {
+                        Id = 6,
                         Book = context.Books.Find(6),
+                        BookId = 6,
                         Days = 4,
                         QuickPickUp = true,
                         Price = ReservationBookUtil.CalculateReservationBookPrice(context.Books.Find(6), 4, true)

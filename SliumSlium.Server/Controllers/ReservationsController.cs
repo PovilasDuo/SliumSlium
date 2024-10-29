@@ -28,9 +28,13 @@ namespace LibraryReservationApp.Controllers
                 {
                     Id = r.Id,
                     ReservedAt = r.ReservedAt,
+                    PaymentId = r.PaymentId,
                     Payment = r.Payment,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
+                        Id = rb.Id,
+                        ReservationId = rb.ReservationId,
+                        BookId = rb.BookId,
                         Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,
@@ -54,9 +58,13 @@ namespace LibraryReservationApp.Controllers
                 {
                     Id = r.Id,
                     ReservedAt = r.ReservedAt,
+                    PaymentId = r.PaymentId,
                     Payment = r.Payment,
                     ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
                     {
+                        Id = rb.Id,
+                        ReservationId = rb.ReservationId,
+                        BookId = rb.BookId,
                         Book = rb.Book,
                         Days = rb.Days,
                         QuickPickUp = rb.QuickPickUp,

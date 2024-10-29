@@ -5,13 +5,7 @@ import FileUpload from "../components/Utils/FileUpload";
 
 export default function BookCreation() {
   const selectRef = useRef<HTMLSelectElement | null>(null);
-
-  useEffect(() => {
-    if (selectRef.current) {
-      M.FormSelect.init(selectRef.current);
-    }
-  }, []);
-
+  const [file, setFile] = useState<File | null>(null);
   const [book, setBook] = useState<BookDTO>({
     id: 0,
     name: "",
@@ -19,7 +13,12 @@ export default function BookCreation() {
     type: "Book",
     pictureUrl: "",
   });
-  const [file, setFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (selectRef.current) {
+      M.FormSelect.init(selectRef.current);
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
