@@ -29,6 +29,7 @@ export const extendReservationDayByOne = async (id: number): Promise<void> => {
         classes: "green",
       });
     }
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 400) {
       const errorMessage = error.response.data?.message || "Invalid book data";

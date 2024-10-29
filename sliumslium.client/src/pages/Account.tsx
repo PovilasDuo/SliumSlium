@@ -10,23 +10,23 @@ const Account: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const reservationData = await fetchReservations();
-        setReservations(reservationData);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
-  }, [reservations]);
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const reservationData = await fetchReservations();
+      setReservations(reservationData);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const extendReservation = async (bookId: number) => {
     await extendReservationDayByOne(bookId);
-    setReservations(reservations);
+    loadData();
   };
 
   if (loading) {
