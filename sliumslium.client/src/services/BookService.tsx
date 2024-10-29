@@ -34,22 +34,20 @@ export const postBook = async (book: BookDTO, file: File): Promise<void> => {
       M.toast({ html: "Book was created successfully", classes: "green" });
     }
   } catch (error) {
-    if(axios.isAxiosError(error) && error.response?.status === 409) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
       console.error("Validation error:", error);
       M.toast({
         html: "Such book already exists",
         classes: "red",
       });
-    } 
-    else if (axios.isAxiosError(error) && error.response?.status === 400) {
+    } else if (axios.isAxiosError(error) && error.response?.status === 400) {
       const errorMessage = error.response.data?.message || "Invalid book data";
       console.error("Validation error:", errorMessage);
       M.toast({
         html: `Failed to create book: ${errorMessage}`,
         classes: "red",
       });
-    }
-    else {
+    } else {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       console.error("Error creating book:", errorMessage);
@@ -59,4 +57,42 @@ export const postBook = async (book: BookDTO, file: File): Promise<void> => {
       });
     }
   }
+};
+
+export const deleteBook = async (id: number): Promise<number> => {
+  const url = `https://localhost:7091/api/Books/${id}`;
+
+  try {
+    const response = await axios.delete(url);
+    if (response.status === 204) {
+      M.toast({ html: "Book was deleted successfully", classes: "green" });
+      return response.status;
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      console.error("Error: Book not found", error);
+      M.toast({
+        html: "Book not found",
+        classes: "red",
+      });
+      return error.response?.status;
+    } else if (axios.isAxiosError(error) && error.response?.status === 400) {
+      console.error("Axios error:", error.message);
+      M.toast({
+        html: `Failed to delete book: ${error.response.data}`,
+        classes: "red",
+      });
+      return error.response?.status;
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("Error deleting book:", errorMessage);
+      M.toast({
+        html: `Failed to delete book: ${errorMessage}`,
+        classes: "red",
+      });
+      return 400;
+    }
+  }
+  return -1;
 };

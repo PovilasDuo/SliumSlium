@@ -6,11 +6,14 @@ import {
   faArrowLeft,
   faArrowRight,
   faPaperPlane,
+  faPen,
+  faEraser,
 } from "@fortawesome/free-solid-svg-icons";
 import M from "materialize-css";
 import { useNavigate } from "react-router-dom";
 import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 import { calculateItemPrice } from "./Utils/ReservationBookUtil";
+import { deleteBook } from "../services/BookService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,7 +22,8 @@ interface BookListProps {
   header: string;
 }
 
-const BookList: React.FC<BookListProps> = ({ books, header }) => {
+const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
+  const [books, setBooks] = useState<BookDTO[]>(initialBooks);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [cart, setCart] = useState<ReservationBooksPostDTO[]>(() => {
@@ -27,7 +31,45 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const indexOfLastBook = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstBook = indexOfLastBook - ITEMS_PER_PAGE;
+  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
+  const totalPages = Math.ceil(books.length / ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setBooks(initialBooks);
+    if (initialBooks.length === 0) {
+      setError("No books found");
+    } else {
+      setError(null);
+    }
+
+    const modals = document.querySelectorAll(".modal");
+    M.Modal.init(modals);
+  }, [initialBooks]);
+
+  const handleToastClick = () => {
+    navigate("/cart");
+    M.Toast.dismissAll();
+  };
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   const navigate = useNavigate();
+
+  const closeModal = (bookId: number) => {
+    const modalId = `#modal${bookId}`;
+    const modal = document.querySelector(modalId);
+
+    if (modal) {
+      const instance = M.Modal.getInstance(modal);
+      if (instance) {
+        instance.close();
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent, book: BookDTO) => {
     e.preventDefault();
@@ -75,40 +117,7 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
       }
     }, 0);
 
-    const modalId = `#modal${book.id}`;
-    const modal = document.querySelector(modalId);
-
-    if (modal) {
-      const instance = M.Modal.getInstance(modal);
-      if (instance) {
-        instance.close();
-      }
-    }
-  };
-
-  const handleToastClick = () => {
-    navigate("/cart");
-    M.Toast.dismissAll();
-  };
-
-  useEffect(() => {
-    if (books.length === 0) {
-      setError("No books found");
-    } else {
-      setError(null);
-    }
-
-    const modals = document.querySelectorAll(".modal");
-    M.Modal.init(modals);
-  }, [books, currentPage]);
-
-  const indexOfLastBook = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstBook = indexOfLastBook - ITEMS_PER_PAGE;
-  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
-  const totalPages = Math.ceil(books.length / ITEMS_PER_PAGE);
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    closeModal(book.id);
   };
 
   if (error)
@@ -117,6 +126,23 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
         <h3>{error}</h3>
       </div>
     );
+
+  async function handleDeletion(id: number): Promise<void> {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this book?"
+    );
+    if (confirmDelete) {
+      try {
+        const result = await deleteBook(id);
+        if ((result as unknown as number) === 204) {
+          setBooks(books.filter((book) => book.id !== id));
+          closeModal(id);
+        }
+      } catch (error) {
+        console.error("Error deleting book:", error);
+      }
+    }
+  }
 
   return (
     <div className="book-list-container">
@@ -251,6 +277,21 @@ const BookList: React.FC<BookListProps> = ({ books, header }) => {
                             </h6>
                           </div>
                         </form>
+                      </div>
+
+                      <div style={{ padding: "20px" }}>
+                        <button
+                          className="btn-floating btn-large waves-effect waves-light"
+                          onClick={() => handleDeletion(book.id)}
+                        >
+                          <FontAwesomeIcon icon={faEraser} />
+                        </button>
+                      </div>
+
+                      <div style={{ padding: "20px" }}>
+                        <button className="btn-floating btn-large waves-effect waves-light">
+                          <FontAwesomeIcon icon={faPen} />
+                        </button>
                       </div>
 
                       <div style={{ padding: "20px" }}>

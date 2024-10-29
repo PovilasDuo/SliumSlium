@@ -88,20 +88,14 @@ namespace LibraryReservationApp.Controllers
         [HttpPost]
         public async Task<IActionResult> PostBook([FromForm] IFormCollection formData)
         {
-            if (!formData.TryGetValue("book", out var bookJson))
-            {
-                return BadRequest("Book data is missing.");
-            }
-            Console.WriteLine($"Received Book JSON: {bookJson[0]}");
+            if (!formData.TryGetValue("book", out var bookJson)) return BadRequest("Book data is missing.");
 
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
             Book? book = JsonSerializer.Deserialize<Book>(bookJson[0], options);
 
             if (book == null || string.IsNullOrWhiteSpace(book.Name) || string.IsNullOrWhiteSpace(book.Type))
-            {
                 return BadRequest("Invalid book data. Make sure all required fields are present.");
-            }
 
             var existingBook = await _context.Books.FirstOrDefaultAsync(b => b.Name.Equals(book.Name, StringComparison.OrdinalIgnoreCase) && b.Type.Equals(book.Type, StringComparison.OrdinalIgnoreCase));
 
@@ -133,15 +127,8 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutBook(int id)
         {
-            if (id != book.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(book).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -171,6 +158,11 @@ namespace LibraryReservationApp.Controllers
             if (book == null)
             {
                 return NotFound();
+            }
+
+            if (book.ReservationBooks.Any())
+            {
+                return BadRequest("Cannot remove a reserved book");
             }
 
             _context.ReservationBooks.RemoveRange(book.ReservationBooks);
