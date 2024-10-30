@@ -63,7 +63,6 @@ namespace LibraryReservationApp.Controllers
                 if (payment != null)
                 {
                     payment.Amount = ReservationBookUtil.CalculateTotalAmount(reservation.ReservationBooks.ToList());
-                    Console.WriteLine(payment.Amount);
                 }
             }
 
@@ -84,6 +83,47 @@ namespace LibraryReservationApp.Controllers
             }
 
             return Ok(new { message = "Reservation book was updated successfully", reservationBook });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> CancelReservationBook(int id)
+        {
+            var reservationBook = await _context.ReservationBooks
+                .Include(r => r.Reservation)
+                .Include(r => r.Book)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reservationBook == null)
+            {
+                return NotFound();
+            }
+
+            var reservation = await _context.Reservations
+               .Include(r => r.ReservationBooks)
+   .FirstOrDefaultAsync(r => r.Id == reservationBook.Reservation.Id);
+
+            if (reservation != null && reservation.ReservationBooks.Count <= 1)
+            {
+                return BadRequest("Cannot remove the last book from the reservation.");
+            }
+
+            if (reservation != null)
+            {
+                var payment = await _context.Payments
+                    .Where(r => r.ReservationId == reservation.Id)
+                    .FirstOrDefaultAsync();
+
+                if (payment != null)
+                {
+                    payment.Amount += ReservationBookUtil.CalculatePriceOfDaysReserved(reservationBook, reservation.ReservedAt);
+                }
+            }
+
+            _context.ReservationBooks.Remove(reservationBook);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

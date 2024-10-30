@@ -29,7 +29,6 @@ export const extendReservationDayByOne = async (id: number): Promise<void> => {
         classes: "green",
       });
     }
-    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 400) {
       const errorMessage = error.response.data?.message || "Invalid book data";
@@ -44,6 +43,36 @@ export const extendReservationDayByOne = async (id: number): Promise<void> => {
       console.error("Error updating reservation's book:", errorMessage);
       M.toast({
         html: `Failed to update reservation's book: ${errorMessage}`,
+        classes: "red",
+      });
+    }
+  }
+};
+
+export const returnBookBack = async (id: number): Promise<void> => {
+  const url = `https://localhost:7091/api/ReservationBook/${id}`;
+  try {
+    const response = await axios.delete(url);
+    if (response.status === 200) {
+      M.toast({
+        html: "Reservation's book was returned successfully",
+        classes: "green",
+      });
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      const errorMessage = error.response.data || "Invalid book data";
+      console.error("Validation error:", errorMessage);
+      M.toast({
+        html: `Failed to return the reservation's book: ${errorMessage}`,
+        classes: "red",
+      });
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("Error returning reservation's book:", errorMessage);
+      M.toast({
+        html: `Failed to return reservation's book: ${errorMessage}`,
         classes: "red",
       });
     }

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { ReservationDTO } from "../models/ReservationDTO";
 import { fetchReservations } from "../services/ReservationService";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { extendReservationDayByOne } from "../services/BookReservationService";
+import {
+  extendReservationDayByOne,
+  returnBookBack,
+} from "../services/BookReservationService";
 
 const Account: React.FC = () => {
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
@@ -35,6 +38,11 @@ const Account: React.FC = () => {
         <h3>Loading reservations...</h3>
       </div>
     );
+  }
+
+  async function returnBook(bookId: number): Promise<void> {
+    await returnBookBack(bookId);
+    loadData();
   }
 
   return (
@@ -92,14 +100,25 @@ const Account: React.FC = () => {
                           <p className="book-days">
                             Price: {reservedBook.price.toFixed(2)}
                           </p>
-                          <button
-                            className="btn-large waves-effect waves-light"
-                            onClick={() =>
-                              extendReservation(reservedBook.book.id)
-                            }
-                          >
-                            Extend: <FontAwesomeIcon icon={faPlus} />
-                          </button>
+                          <p>
+                            {" "}
+                            <button
+                              className="btn-large waves-effect waves-light"
+                              onClick={() =>
+                                extendReservation(reservedBook.book.id)
+                              }
+                            >
+                              Extend: <FontAwesomeIcon icon={faPlus} />
+                            </button>
+                          </p>
+                          <p>
+                            <button
+                              className="btn-large waves-effect waves-light"
+                              onClick={() => returnBook(reservedBook.book.id)}
+                            >
+                              return: <FontAwesomeIcon icon={faMinus} />
+                            </button>
+                          </p>
                         </div>
                       </div>
                     </li>

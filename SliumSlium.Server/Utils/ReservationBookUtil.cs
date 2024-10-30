@@ -32,5 +32,13 @@ namespace LibraryReservationApp.Utils
             total += 3; 
             return total;
         }
+
+        public static double CalculatePriceOfDaysReserved(ReservationBook reservationBook, DateTime reservationDay)
+        {
+            double sum = 0;
+            double amountOfDaysReserved = Math.Ceiling((reservationDay - DateTime.Today).TotalDays);
+            sum = amountOfDaysReserved * (reservationBook.Book.Type.Equals("Audiobook", StringComparison.OrdinalIgnoreCase) ? 3 : 2);          
+            return sum;
+        }
     }
 }
