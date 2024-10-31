@@ -24,23 +24,6 @@ namespace LibraryReservationApp.Controllers
                 .Include(r => r.Payment)
                 .Include(r => r.ReservationBooks)
                 .ThenInclude(rb => rb.Book)
-                .Select(r => new Reservation
-                {
-                    Id = r.Id,
-                    ReservedAt = r.ReservedAt,
-                    PaymentId = r.PaymentId,
-                    Payment = r.Payment,
-                    ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
-                    {
-                        Id = rb.Id,
-                        ReservationId = rb.ReservationId,
-                        BookId = rb.BookId,
-                        Book = rb.Book,
-                        Days = rb.Days,
-                        QuickPickUp = rb.QuickPickUp,
-                        Price = rb.Price
-                    }).ToList()
-                })
                 .ToListAsync();
 
             return Ok(reservations);
@@ -54,23 +37,6 @@ namespace LibraryReservationApp.Controllers
                 .Include(r => r.Payment)
                 .Include(r => r.ReservationBooks)
                 .ThenInclude(rb => rb.Book)
-                .Select(r => new Reservation
-                {
-                    Id = r.Id,
-                    ReservedAt = r.ReservedAt,
-                    PaymentId = r.PaymentId,
-                    Payment = r.Payment,
-                    ReservationBooks = r.ReservationBooks.Select(rb => new ReservationBook
-                    {
-                        Id = rb.Id,
-                        ReservationId = rb.ReservationId,
-                        BookId = rb.BookId,
-                        Book = rb.Book,
-                        Days = rb.Days,
-                        QuickPickUp = rb.QuickPickUp,
-                        Price = rb.Price
-                    }).ToList()
-                })
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (reservation == null)
@@ -102,16 +68,9 @@ namespace LibraryReservationApp.Controllers
                 return BadRequest("One or more BookIds are invalid.");
             }
 
-            foreach (var reservationBook in reservation.ReservationBooks)
-            {
-                var book = books.FirstOrDefault(b => b.Id == reservationBook.Book.Id);
-                if (book == null) return BadRequest("Invalid BookId.");
-            }
-
             var newReservation = new Reservation
             {
-                ReservedAt = DateTime.UtcNow,
-                ReservationBooks = new List<ReservationBook>()
+                ReservedAt = DateTime.UtcNow
             };
 
             _context.Reservations.Add(newReservation);
@@ -119,26 +78,34 @@ namespace LibraryReservationApp.Controllers
 
             foreach (var reservationBook in reservation.ReservationBooks)
             {
-                newReservation.ReservationBooks.Add(new ReservationBook
+                var book = books.FirstOrDefault(b => b.Id == reservationBook.Book.Id);
+                if (book == null) return BadRequest("Invalid BookId.");
+
+                var maxId = await _context.ReservationBooks.MaxAsync(rb => (int?)rb.Id) ?? 0;
+                var newId = maxId + 1;
+
+                var newReservationBook = new ReservationBook
                 {
-                    Book = await _context.Books.FindAsync(reservationBook.Book.Id),
+                    Id = newId,
+                    BookId = book.Id,
+                    Book = book,
+                    ReservationId = newReservation.Id,
                     Days = reservationBook.Days,
-                    Reservation = newReservation,
                     QuickPickUp = reservationBook.QuickPickUp,
                     Price = ReservationBookUtil.CalculateReservationBookPrice(
-                    reservationBook.Book,
-                    reservationBook.Days,
-                    reservationBook.QuickPickUp)
-                });
+                        book,
+                        reservationBook.Days,
+                        reservationBook.QuickPickUp)
+                };
+                _context.ReservationBooks.Add(newReservationBook);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
 
             var newPayment = new Payment
             {
-                Amount = ReservationBookUtil.CalculateTotalAmount((List<ReservationBook>)reservation.ReservationBooks),
+                Amount = ReservationBookUtil.CalculateTotalAmount((List<ReservationBook>)newReservation.ReservationBooks),
                 PaymentDate = DateTime.UtcNow,
-                Reservation = newReservation
+                ReservationId = newReservation.Id,
             };
 
             _context.Payments.Add(newPayment);
@@ -149,6 +116,7 @@ namespace LibraryReservationApp.Controllers
 
             return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
@@ -165,6 +133,51 @@ namespace LibraryReservationApp.Controllers
             _context.ReservationBooks.RemoveRange(reservation.ReservationBooks);
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateReservationStatus(int id, [FromQuery] string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                return BadRequest(new { message = "Status is required." });
+            }
+
+            var reservation = await _context.Reservations
+                .Include(r => r.Payment)
+                .Include(r => r.ReservationBooks)
+                .ThenInclude(rb => rb.Book)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            if (status != "Ready" && status != "In-progress" && status != "Ongoing")
+            {
+                return BadRequest(new { message = "Invalid status value." });
+            }
+
+            reservation.Status = status;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Reservations.Any(e => e.Id == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw new Exception("Error occurred updating the reservation");
+                }
+            }
 
             return NoContent();
         }

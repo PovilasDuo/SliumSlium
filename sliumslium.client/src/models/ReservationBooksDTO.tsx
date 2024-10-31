@@ -2,7 +2,7 @@ import { BookDTO } from "./BookDTO";
 import { ReservationDTO } from "./ReservationDTO";
 
 export interface ReservationBookDTO {
-  id?: number;
+  id: number;
   reservationId?: number;
   reservation?: ReservationDTO;
   bookId: number;

@@ -60,6 +60,7 @@ using (var scope = app.Services.CreateScope())
         new Reservation
         {
             Id = 1,
+            Status = "Ready to pick up",
             ReservedAt = DateTime.UtcNow.AddDays(-1),
             ReservationBooks = new List<ReservationBook>
             {
@@ -112,6 +113,7 @@ using (var scope = app.Services.CreateScope())
         new Reservation
         {
             Id = 2,
+            Status = "In progress",
             ReservedAt = DateTime.UtcNow.AddDays(-2),
             ReservationBooks = new List<ReservationBook>
             {
@@ -164,6 +166,7 @@ using (var scope = app.Services.CreateScope())
         new Reservation
         {
             Id = 3,
+            Status = "In progress",
             ReservedAt = DateTime.UtcNow.AddDays(-3),
             ReservationBooks = new List<ReservationBook>
             {

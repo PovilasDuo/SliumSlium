@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
+import M from "materialize-css";
 import { ReservationDTO } from "../models/ReservationDTO";
-import { fetchReservations } from "../services/ReservationService";
-import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import {
+  changeReservationStatusById,
+  deleteReservationById,
+  fetchReservations,
+} from "../services/ReservationService";
+import { faPlus, faMinus, faX, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   extendReservationDayByOne,
@@ -11,10 +16,23 @@ import {
 const Account: React.FC = () => {
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReservationId, setSelectedReservationId] = useState<
+    number | null
+  >(null);
+  const [newStatus, setNewStatus] = useState<string>("");
 
   useEffect(() => {
     loadData();
+    const modalElem = document.getElementById("status-modal");
+    if (modalElem) {
+      M.Modal.init(modalElem);
+    }
   }, []);
+
+  useEffect(() => {
+    const selectElem = document.querySelectorAll("select");
+    M.FormSelect.init(selectElem);
+  }, [selectedReservationId]);
 
   const loadData = async () => {
     try {
@@ -27,10 +45,10 @@ const Account: React.FC = () => {
     }
   };
 
-  const extendReservation = async (bookId: number) => {
+  async function extendReservation(bookId: number): Promise<void> {
     await extendReservationDayByOne(bookId);
     loadData();
-  };
+  }
 
   if (loading) {
     return (
@@ -44,6 +62,33 @@ const Account: React.FC = () => {
     await returnBookBack(bookId);
     loadData();
   }
+
+  async function deleteReservation(reservationId: number): Promise<void> {
+    await deleteReservationById(reservationId);
+    loadData();
+  }
+
+  const openStatusModal = (id: number) => {
+    setSelectedReservationId(id);
+    const modal = document.getElementById("status-modal");
+    if (modal) {
+      const instance = M.Modal.getInstance(modal) || M.Modal.init(modal);
+      instance.open();
+    }
+  };
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setNewStatus(event.target.value);
+  };
+
+  const confirmStatusChange = async () => {
+    if (selectedReservationId && newStatus) {
+      await changeReservationStatusById(selectedReservationId, newStatus);
+      loadData();
+    }
+    setNewStatus("");
+    setSelectedReservationId(null);
+  };
 
   return (
     <div className="container center-align">
@@ -70,6 +115,17 @@ const Account: React.FC = () => {
                     <b>€{reservation.payment.amount.toFixed(2)}</b>
                   </p>
                 </h4>
+                <h5>
+                  <p>
+                    Status: <i>{reservation.status}</i> &nbsp;
+                    <button
+                      className="btn-floating btn-large waves-effect waves-light green"
+                      onClick={() => openStatusModal(reservation.id)}
+                    >
+                      <FontAwesomeIcon icon={faPen} />
+                    </button>
+                  </p>
+                </h5>
 
                 <ul className="book-list-row">
                   {reservation.reservationBooks.map((reservedBook) => (
@@ -101,22 +157,19 @@ const Account: React.FC = () => {
                             Price: {reservedBook.price.toFixed(2)}
                           </p>
                           <p>
-                            {" "}
                             <button
                               className="btn-large waves-effect waves-light"
-                              onClick={() =>
-                                extendReservation(reservedBook.book.id)
-                              }
+                              onClick={() => extendReservation(reservedBook.id)}
                             >
                               Extend: <FontAwesomeIcon icon={faPlus} />
                             </button>
                           </p>
                           <p>
                             <button
-                              className="btn-large waves-effect waves-light"
-                              onClick={() => returnBook(reservedBook.book.id)}
+                              className="btn-large waves-effect waves-light red"
+                              onClick={() => returnBook(reservedBook.id)}
                             >
-                              return: <FontAwesomeIcon icon={faMinus} />
+                              Return: <FontAwesomeIcon icon={faMinus} />
                             </button>
                           </p>
                         </div>
@@ -124,11 +177,44 @@ const Account: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+                <p>
+                  <button
+                    className="btn-large waves-effect red"
+                    onClick={() => deleteReservation(reservation.id)}
+                  >
+                    Cancel: <FontAwesomeIcon icon={faX} />
+                  </button>
+                </p>
               </li>
             ))}
           </ul>
         </div>
       )}
+
+      <div id="status-modal" className="modal">
+        <div className="modal-content">
+          <h4>Change Reservation Status</h4>
+          <p>Select the new status for your reservation.</p>
+          <div className="input-field">
+            <select value={newStatus} onChange={handleStatusChange}>
+              <option value="" disabled>
+                Choose a new status
+              </option>
+              <option value="In-progress">In-progress</option>
+              <option value="Ready">Ready for pick up</option>
+              <option value="Ongoing">Ongoing</option>
+            </select>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button
+            className="modal-close waves-effect waves-green btn-flat"
+            onClick={confirmStatusChange}
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

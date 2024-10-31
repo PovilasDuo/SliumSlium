@@ -47,6 +47,8 @@ namespace LibraryReservationApp.Controllers
             {
                 return NotFound(new { message = "Reservation book was not found" });
             }
+
+            double previousPrice = reservationBook.Price;
             reservationBook.Days += dayIncrease;
             reservationBook.Price = ReservationBookUtil.CalculateReservationBookPrice(reservationBook.Book, reservationBook.Days, reservationBook.QuickPickUp);
 
@@ -62,7 +64,7 @@ namespace LibraryReservationApp.Controllers
 
                 if (payment != null)
                 {
-                    payment.Amount = ReservationBookUtil.CalculateTotalAmount(reservation.ReservationBooks.ToList());
+                    payment.Amount += -previousPrice + reservationBook.Price;
                 }
             }
 
