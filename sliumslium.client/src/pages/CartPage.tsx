@@ -65,6 +65,7 @@ const CartPage: React.FC = () => {
         quickPickUp: item.quickPickUp,
         price: item.price,
       })),
+      userId: 1,
     };
 
     try {

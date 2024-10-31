@@ -55,6 +55,13 @@ using (var scope = app.Services.CreateScope())
         new Book { Id = 21, Name = "Fahrenheit 451", Year = 1953, Type = "Book", PictureUrl = "images/fahrenheit451.jpg" }
     );
 
+    context.Users.Add(new User
+    {
+        Username = "user",
+        Email = "user@example.com",
+        PasswordHash = "password"
+    });
+
     var reservations = new List<Reservation>
     {
         new Reservation
@@ -108,7 +115,9 @@ using (var scope = app.Services.CreateScope())
                 }),
                 PaymentDate = DateTime.UtcNow.AddDays(-1),
                 ReservationId = 1
-            }
+            },
+            UserId = context.Users.Find(1).Id,
+            User = context.Users.Find(1)
         },
         new Reservation
         {
@@ -161,7 +170,9 @@ using (var scope = app.Services.CreateScope())
                 }),
                 PaymentDate = DateTime.UtcNow.AddDays(-2),
                 ReservationId = 2
-            }
+            },
+            UserId = context.Users.Find(1).Id,
+            User = context.Users.Find(1)
         },
         new Reservation
         {
@@ -214,7 +225,9 @@ using (var scope = app.Services.CreateScope())
                 }),
                 PaymentDate = DateTime.UtcNow.AddDays(-3),
                 ReservationId = 3
-            }
+            },
+            UserId = context.Users.Find(1).Id,
+            User = context.Users.Find(1)
         }
     };
 

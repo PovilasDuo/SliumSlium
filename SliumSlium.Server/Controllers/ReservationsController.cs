@@ -24,6 +24,7 @@ namespace LibraryReservationApp.Controllers
                 .Include(r => r.Payment)
                 .Include(r => r.ReservationBooks)
                 .ThenInclude(rb => rb.Book)
+                .Include(u => u.User)
                 .ToListAsync();
 
             return Ok(reservations);
@@ -37,6 +38,7 @@ namespace LibraryReservationApp.Controllers
                 .Include(r => r.Payment)
                 .Include(r => r.ReservationBooks)
                 .ThenInclude(rb => rb.Book)
+                .Include(u => u.User)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (reservation == null)
@@ -70,7 +72,9 @@ namespace LibraryReservationApp.Controllers
 
             var newReservation = new Reservation
             {
-                ReservedAt = DateTime.UtcNow
+                ReservedAt = DateTime.UtcNow,
+                Status = "Ongoing",
+                UserId = 1
             };
 
             _context.Reservations.Add(newReservation);
