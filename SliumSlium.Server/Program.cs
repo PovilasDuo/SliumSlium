@@ -57,9 +57,10 @@ using (var scope = app.Services.CreateScope())
 
     context.Users.Add(new User
     {
-        Username = "user",
+        Name = "user",
         Email = "user@example.com",
-        PasswordHash = "password"
+        Password = "password",
+        Role = 1
     });
 
     var reservations = new List<Reservation>
