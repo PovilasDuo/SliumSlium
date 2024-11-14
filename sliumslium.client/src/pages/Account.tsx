@@ -4,7 +4,7 @@ import { ReservationDTO } from "../models/ReservationDTO";
 import {
   changeReservationStatusById,
   deleteReservationById,
-  fetchReservations,
+  getUserReservations,
 } from "../services/ReservationService";
 import { faPlus, faMinus, faX, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,6 +12,7 @@ import {
   extendReservationDayByOne,
   returnBookBack,
 } from "../services/BookReservationService";
+import { useAuth } from "../components/Utils/AuthContext";
 
 const Account: React.FC = () => {
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
@@ -20,6 +21,7 @@ const Account: React.FC = () => {
     number | null
   >(null);
   const [newStatus, setNewStatus] = useState<string>("");
+  const { user } = useAuth();
 
   useEffect(() => {
     loadData();
@@ -36,7 +38,7 @@ const Account: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const reservationData = await fetchReservations();
+      const reservationData = await getUserReservations(user!.id);
       setReservations(reservationData);
     } catch (error) {
       console.error("Error loading data:", error);

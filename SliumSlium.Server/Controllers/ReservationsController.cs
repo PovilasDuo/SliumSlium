@@ -33,9 +33,26 @@ namespace LibraryReservationApp.Controllers
             return Ok(reservations);
         }
 
-
         [HttpGet("{id}")]
-        public async Task<ActionResult<Reservation>> GetReservation(int id)
+        public async Task<ActionResult<IEnumerable<Reservation>>> GetUserReservations(int id)
+        {
+            var reservation = await _context.Reservations
+                .Include(r => r.Payment)
+                .Include(r => r.ReservationBooks)
+                .ThenInclude(rb => rb.Book)
+                .Include(r => r.User)
+                .Where(r => r.User.Id == id)
+                .ToListAsync();
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(reservation);
+        }
+
+        private async Task<ActionResult<Reservation>> GetReservation(int id)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.Payment)
@@ -51,6 +68,7 @@ namespace LibraryReservationApp.Controllers
 
             return Ok(reservation);
         }
+
 
         //[HttpPost]
         //public async Task<ActionResult<Reservation>> PostReservation([FromBody] Reservation_PostDTO reservationDto)

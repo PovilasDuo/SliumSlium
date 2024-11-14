@@ -10,10 +10,14 @@ import SearchResults from "./components/SearchResults";
 import CartPage from "./pages/CartPage";
 import BookCreation from "./pages/BookCreation";
 import BookUpdate from "./pages/BookUpdate";
+import Login from "./pages/Login";
+import { AuthProvider } from "./components/Utils/AuthContext";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
     <BrowserRouter>
+    <AuthProvider>
       <Header />
       <main>
         <Routes>
@@ -23,10 +27,13 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/book-creation" element={<BookCreation />} />
           <Route path="/book-update/:id" element={<BookUpdate />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/*" element={<HomePage />} />
         </Routes>
       </main>
       <Footer />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

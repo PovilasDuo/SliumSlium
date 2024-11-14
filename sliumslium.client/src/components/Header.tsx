@@ -4,10 +4,19 @@ import {
   faHome,
   faUser,
   faCartShopping,
-  faPlus
+  faPlus,
+  faHippo,
+  faDog,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "./Utils/AuthContext";
 
 export default function Header() {
+  const { user, logOut } = useAuth();
+
+  const handleLogout = () => {
+    logOut();
+  };
+
   const html = (
     <nav>
       <div className="nav-wrapper" style={{}}>
@@ -37,6 +46,27 @@ export default function Header() {
             <a href="/book-creation">
               Add book <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
             </a>
+          </li>
+          <li>
+            {!user && (
+              <li>
+                <a href="/login">
+                  Log In <FontAwesomeIcon icon={faHippo}></FontAwesomeIcon>
+                </a>
+              </li>
+            )}
+            {user && (
+              <li>
+                <button className="btn-flat white-text" onClick={handleLogout}>
+                  Log out <FontAwesomeIcon icon={faHippo}></FontAwesomeIcon>
+                </button>
+              </li>
+            )}
+            {!user && (
+              <li>
+                <a href="/Signup">SIGN UP</a>
+              </li>
+            )}
           </li>
         </ul>
       </div>

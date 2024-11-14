@@ -30,6 +30,33 @@ export const fetchReservations = async (): Promise<ReservationDTO[]> => {
   }
 };
 
+export const getUserReservations = async (id: number): Promise<ReservationDTO[]> => {
+  try {
+    const response = await axios.get<ReservationDTO[]>(`${BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    let errorMessage: string;
+
+    if (axios.isAxiosError(error)) {
+      errorMessage =
+        error.response?.data?.message || "Failed to fetch reservations.";
+      console.error("Axios error:", error.message);
+      M.toast({
+        html: `Failed to fetch reservations: ${errorMessage}`,
+        classes: "red",
+      });
+    } else {
+      errorMessage = "An unexpected error occurred.";
+      console.error("Unexpected error:", error);
+      M.toast({
+        html: `Failed to fetch reservations: ${errorMessage}`,
+        classes: "red",
+      });
+    }
+    throw error;
+  }
+};
+
 export const postReservation = async (
   reservation: ReservationDTO
 ): Promise<any> => {
