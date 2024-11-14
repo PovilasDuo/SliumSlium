@@ -50,11 +50,11 @@ namespace LibraryReservationApp.Controllers
 
             double previousPrice = reservationBook.Price;
             reservationBook.Days += dayIncrease;
-            reservationBook.Price = ReservationBookUtil.CalculateReservationBookPrice(reservationBook.Book, reservationBook.Days, reservationBook.QuickPickUp);
+            reservationBook.Price = ReservationBookUtil.CalculateReservationBookPrice(reservationBook.Book!, reservationBook.Days, reservationBook.QuickPickUp);
 
             var reservation = await _context.Reservations
                 .Include(r => r.ReservationBooks)
-    .           FirstOrDefaultAsync(r => r.Id == reservationBook.Reservation.Id);
+    .           FirstOrDefaultAsync(r => r.Id == reservationBook.Reservation!.Id);
 
             if (reservation != null)
             {
@@ -102,7 +102,7 @@ namespace LibraryReservationApp.Controllers
 
             var reservation = await _context.Reservations
                .Include(r => r.ReservationBooks)
-   .FirstOrDefaultAsync(r => r.Id == reservationBook.Reservation.Id);
+               .FirstOrDefaultAsync(r => r.Id == reservationBook.Reservation!.Id);
 
             if (reservation != null && reservation.ReservationBooks.Count <= 1)
             {

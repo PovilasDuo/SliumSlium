@@ -1,3 +1,4 @@
+using AutoMapper;
 using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace LibraryReservationApp.Controllers
     {
         private readonly IWebHostEnvironment _env;
         private readonly LibraryContext _context;
+        private readonly IMapper _mapper;
 
-        public BooksController(LibraryContext context, IWebHostEnvironment env)
+        public BooksController(LibraryContext context, IWebHostEnvironment env, IMapper mapper)
         {
             _context = context;
             _env = env;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -88,11 +91,22 @@ namespace LibraryReservationApp.Controllers
         [HttpPost]
         public async Task<IActionResult> PostBook([FromForm] IFormCollection formData)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (!formData.TryGetValue("book", out var bookJson)) return BadRequest("Book data is missing.");
 
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-            Book? book = JsonSerializer.Deserialize<Book>(bookJson[0], options);
+            Book_PostDTO newbook;
+            if (bookJson.Count == 1)
+            {
+                newbook = JsonSerializer.Deserialize<Book_PostDTO>(bookJson[0]!, options);
+            }
+            else return BadRequest("Invalid book data. Make sure to add a book");
+            Book book = _mapper.Map<Book>(newbook);  
 
             if (book == null || string.IsNullOrWhiteSpace(book.Name) || string.IsNullOrWhiteSpace(book.Type))
                 return BadRequest("Invalid book data. Make sure all required fields are present.");
@@ -129,6 +143,11 @@ namespace LibraryReservationApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, [FromBody] Book updatedBook)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var book = await _context.Books.FindAsync(id);
             if (book == null)
             {
