@@ -3,6 +3,7 @@ using LibraryReservationApp.Models;
 using LibraryReservationApp.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace LibraryReservationApp.Controllers
 {
@@ -11,10 +12,12 @@ namespace LibraryReservationApp.Controllers
     public class ReservationsController : ControllerBase
     {
         private readonly LibraryContext _context;
+        private readonly IMapper _mapper;
 
-        public ReservationsController(LibraryContext context)
+        public ReservationsController(LibraryContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -48,6 +51,65 @@ namespace LibraryReservationApp.Controllers
 
             return Ok(reservation);
         }
+
+        //[HttpPost]
+        //public async Task<ActionResult<Reservation>> PostReservation([FromBody] Reservation_PostDTO reservationDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    if (reservationDto.ReservationBooks == null || !reservationDto.ReservationBooks.Any())
+        //    {
+        //        return BadRequest("At least one book must be provided.");
+        //    }
+
+        //    var bookIds = reservationDto.ReservationBooks.Select(rb => rb.BookId).ToList();
+        //    var books = await _context.Books.Where(b => bookIds.Contains(b.Id)).ToListAsync();
+
+        //    if (books.Count != bookIds.Count)
+        //    {
+        //        return BadRequest("One or more BookIds are invalid.");
+        //    }
+
+        //    var newReservation = _mapper.Map<Reservation>(reservationDto);
+
+        //    _context.Reservations.Add(newReservation);
+        //    await _context.SaveChangesAsync();
+
+        //    foreach (var reservationBookDto in reservationDto.ReservationBooks)
+        //    {
+        //        var book = books.FirstOrDefault(b => b.Id == reservationBookDto.BookId);
+        //        if (book == null) return BadRequest("Invalid BookId.");
+
+        //        var newReservationBook = _mapper.Map<ReservationBook>(reservationBookDto);
+        //        newReservationBook.ReservationId = newReservation.Id;
+        //        newReservationBook.Price = ReservationBookUtil.CalculateReservationBookPrice(
+        //            book,
+        //            reservationBookDto.Days,
+        //            reservationBookDto.QuickPickUp
+        //        );
+        //        _context.ReservationBooks.Add(newReservationBook);
+        //    }
+
+        //    var payment = new Payment_PostDTO
+        //    {
+        //        Amount = ReservationBookUtil.CalculateTotalAmount(await _context.ReservationBooks
+        //            .Where(rb => rb.ReservationId == newReservation.Id)
+        //            .ToListAsync()),
+        //        PaymentDate = DateTime.UtcNow,
+        //        ReservationId = newReservation.Id,
+        //    };
+        //    var newPayment = _mapper.Map<Payment>(payment);
+        //    _context.Payments.Add(newPayment);
+        //    await _context.SaveChangesAsync();
+
+        //    newReservation.PaymentId = newPayment.Id;
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);
+        //}
 
         [HttpPost]
         public async Task<ActionResult<Reservation>> PostReservation([FromBody] Reservation reservation)
@@ -121,7 +183,6 @@ namespace LibraryReservationApp.Controllers
             return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);
         }
 
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
@@ -144,6 +205,11 @@ namespace LibraryReservationApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateReservationStatus(int id, [FromQuery] string? status)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (string.IsNullOrWhiteSpace(status))
             {
                 return BadRequest(new { message = "Status is required." });

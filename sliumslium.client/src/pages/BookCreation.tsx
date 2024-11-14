@@ -9,7 +9,7 @@ export default function BookCreation() {
   const [book, setBook] = useState<BookDTO>({
     id: 0,
     name: "",
-    year: new Date().getFullYear(),
+    year: 0,
     type: "Book",
     pictureUrl: "",
   });
