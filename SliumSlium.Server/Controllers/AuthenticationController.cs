@@ -24,13 +24,13 @@ namespace LibraryReservationApp.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(GetUserDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(User_GetDTO), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await GetUserByIdAsync(id);
             if (user == null) return NotFound();
 
-            var userDto = _mapper.Map<GetUserDTO>(user);
+            var userDto = _mapper.Map<User_GetDTO>(user);
             return Ok(userDto);
         }
 

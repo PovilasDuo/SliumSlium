@@ -4,6 +4,8 @@ using LibraryReservationApp.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using ShopAPI.SMTP;
+using System.Text;
 
 namespace LibraryReservationApp.Controllers
 {
@@ -13,11 +15,13 @@ namespace LibraryReservationApp.Controllers
     {
         private readonly LibraryContext _context;
         private readonly IMapper _mapper;
+        private readonly EmailService _emailService;
 
-        public ReservationsController(LibraryContext context, IMapper mapper)
+        public ReservationsController(LibraryContext context, IMapper mapper, EmailService emailService)
         {
             _context = context;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -52,22 +56,22 @@ namespace LibraryReservationApp.Controllers
             return Ok(reservation);
         }
 
-        private async Task<ActionResult<Reservation>> GetReservation(int id)
-        {
-            var reservation = await _context.Reservations
-                .Include(r => r.Payment)
-                .Include(r => r.ReservationBooks)
-                .ThenInclude(rb => rb.Book)
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(r => r.Id == id);
+        //private async Task<ActionResult<Reservation>> GetReservation(int id)
+        //{
+        //    var reservation = await _context.Reservations
+        //        .Include(r => r.Payment)
+        //        .Include(r => r.ReservationBooks)
+        //        .ThenInclude(rb => rb.Book)
+        //        .Include(u => u.User)
+        //        .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (reservation == null)
-            {
-                return NotFound();
-            }
+        //    if (reservation == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return Ok(reservation);
-        }
+        //    return Ok(reservation);
+        //}
 
 
         //[HttpPost]
@@ -154,7 +158,7 @@ namespace LibraryReservationApp.Controllers
             {
                 ReservedAt = DateTime.UtcNow,
                 Status = "Ongoing",
-                UserId = 1
+                UserId = reservation.UserId,
             };
 
             _context.Reservations.Add(newReservation);
@@ -198,7 +202,44 @@ namespace LibraryReservationApp.Controllers
             newReservation.PaymentId = newPayment.Id;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetReservation), new { id = newReservation.Id }, newReservation);
+            await sendEmail(newReservation, "Your order has been succesfully created", "Order Status Update");
+
+            return CreatedAtAction(nameof(GetUserReservations), new { id = newReservation.UserId }, newReservation);
+        }
+
+        private async Task sendEmail(Reservation reservation, string message, string subject)
+        {
+            var email = await _context.Users
+                .Where(u => u.Id == reservation.UserId)
+                .Select(u => u.Email)
+                .FirstOrDefaultAsync();
+
+            if (email != null && !string.IsNullOrEmpty(email))
+            {
+                var body = await formatMessage(reservation, message);
+                await _emailService.SendEmailAsync(email, subject, body);
+            }
+        }
+
+        private async Task<string> formatMessage(Reservation reservation, string message)
+        {
+            var body = new StringBuilder();
+
+            body.AppendLine(message);
+            body.AppendLine("\nOrder details:");
+
+            foreach (ReservationBook reservationBook in reservation.ReservationBooks)
+            {
+                if (reservationBook != null)
+                {
+                    body.AppendLine($"{reservationBook.Book.Name}: {reservationBook.Days} - ${reservationBook.Price}");
+                }
+            }
+
+            body.AppendLine($"\nTotal Price: ${Math.Round(reservation.Payment.Amount, 2)}");
+            body.AppendLine("\nThank you for your order!");
+
+            return body.ToString();
         }
 
         [HttpDelete("{id}")]

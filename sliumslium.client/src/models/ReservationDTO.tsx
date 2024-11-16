@@ -9,6 +9,6 @@ export interface ReservationDTO {
   paymentId: number;
   payment: PaymentDTO;
   reservationBooks: ReservationBookDTO[];
-  userId: number;
+  userId?: number;
   user?: UserDTO;
 }

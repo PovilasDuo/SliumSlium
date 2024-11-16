@@ -58,7 +58,7 @@ export default function Header() {
             {user && (
               <li>
                 <button className="btn-flat white-text" onClick={handleLogout}>
-                  Log out <FontAwesomeIcon icon={faHippo}></FontAwesomeIcon>
+                  Log out <FontAwesomeIcon icon={faDog}></FontAwesomeIcon>
                 </button>
               </li>
             )}

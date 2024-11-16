@@ -4,10 +4,12 @@ import { PaymentDTO } from "../models/PaymentDTO";
 import { calculateItemPrice } from "../components/Utils/ReservationBookUtil";
 import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 import { postReservation } from "../services/ReservationService";
+import { useAuth } from "../components/Utils/AuthContext";
 
 const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<ReservationBooksPostDTO[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -65,7 +67,7 @@ const CartPage: React.FC = () => {
         quickPickUp: item.quickPickUp,
         price: item.price,
       })),
-      userId: 1,
+      userId: user?.id,
     };
 
     try {

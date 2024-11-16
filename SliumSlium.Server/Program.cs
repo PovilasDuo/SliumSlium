@@ -2,12 +2,14 @@ using LibraryReservationApp.Data;
 using LibraryReservationApp.Models;
 using LibraryReservationApp.Utils;
 using Microsoft.EntityFrameworkCore;
+using ShopAPI.SMTP;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseInMemoryDatabase("LibraryDb"));
-
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", builder =>

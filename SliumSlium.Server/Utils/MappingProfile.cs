@@ -14,7 +14,7 @@ public class MappingProfile : Profile
         CreateMap<Payment_PostDTO, Payment>();
         CreateMap<Book, Book_PostDTO>();
         CreateMap<Book_PostDTO, Book>();
-        CreateMap<User, GetUserDTO>();
-        CreateMap<GetUserDTO, User>();
+        CreateMap<User, User_GetDTO>();
+        CreateMap<User_GetDTO, User>();
     }
 }
