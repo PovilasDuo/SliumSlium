@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         email,
         password,
-        role: 0,
+        role: 1,
       });
 
       const respData = response.data.value;

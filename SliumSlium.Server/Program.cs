@@ -62,7 +62,7 @@ using (var scope = app.Services.CreateScope())
         Name = "Povilas",
         Email = "ogiuxd31@gmail.com",
         Password = "Povilas!23",
-        Role = 1
+        Role = 2
     });
 
     var reservations = new List<Reservation>

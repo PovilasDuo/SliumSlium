@@ -11,7 +11,7 @@ import {
 import { useAuth } from "./Utils/AuthContext";
 
 export default function Header() {
-  const { user, logOut } = useAuth();
+  const { user, logOut, hasRole } = useAuth();
 
   const handleLogout = () => {
     logOut();
@@ -32,21 +32,14 @@ export default function Header() {
               Home <FontAwesomeIcon icon={faHome} />
             </a>
           </li>
-          <li>
-            <a href="/account">
-              My reservations <FontAwesomeIcon icon={faUser} />
-            </a>
-          </li>
-          <li>
-            <a href="/cart">
-              Cart <FontAwesomeIcon icon={faCartShopping} />
-            </a>
-          </li>
-          <li>
-            <a href="/book-creation">
-              Add book <FontAwesomeIcon icon={faPlus} />
-            </a>
-          </li>
+          {hasRole("admin") && (
+            <li>
+              <a href="/book-creation">
+                Add book <FontAwesomeIcon icon={faPlus} />
+              </a>
+            </li>
+          )}
+
           {!user && (
             <li>
               <a href="/login">
@@ -55,11 +48,34 @@ export default function Header() {
             </li>
           )}
           {user && (
-            <li>
-              <button className="btn-flat white-text" onClick={handleLogout}>
-                Log out <FontAwesomeIcon icon={faDog} />
-              </button>
-            </li>
+            <>
+              <li>
+                <a href="/account">
+                  {hasRole("user") ? (
+                    <>
+                      My reservations <FontAwesomeIcon icon={faUser} />
+                    </>
+                  ) : (
+                    <>
+                      All reservations <FontAwesomeIcon icon={faUser} />
+                    </>
+                  )}
+                </a>
+              </li>
+              {hasRole("user") && (
+                <li>
+                  <a href="/cart">
+                    Cart <FontAwesomeIcon icon={faCartShopping} />
+                  </a>
+                </li>
+              )}
+
+              <li>
+                <button className="btn-flat white-text" onClick={handleLogout}>
+                  Log out <FontAwesomeIcon icon={faDog} />
+                </button>
+              </li>
+            </>
           )}
           {!user && (
             <li>

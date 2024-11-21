@@ -13,6 +13,6 @@ namespace LibraryReservationApp.Models.Auth
         [StrongPassword]
         public string Password { get; set; } = null!;
         [Required]
-        public int Role { get; set; } = 0;
+        public int Role { get; set; } = 1;
     }
 }

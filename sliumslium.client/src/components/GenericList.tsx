@@ -8,12 +8,14 @@ import {
   faPaperPlane,
   faPen,
   faEraser,
+  faHippo,
 } from "@fortawesome/free-solid-svg-icons";
 import M from "materialize-css";
 import { useNavigate } from "react-router-dom";
 import { ReservationBooksPostDTO } from "../models/ReservationBooksPostDTO";
 import { calculateItemPrice } from "./Utils/ReservationBookUtil";
 import { deleteBook } from "../services/BookService";
+import { useAuth } from "./Utils/AuthContext";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,6 +25,8 @@ interface BookListProps {
 }
 
 const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
   const [books, setBooks] = useState<BookDTO[]>(initialBooks);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -182,7 +186,6 @@ const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
                       } else {
                         const modals = document.querySelectorAll(".modal");
                         M.Modal.init(modals);
-                        console.log("Modal could not be found");
                       }
                     }
                   }}
@@ -261,14 +264,23 @@ const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
                               className="input-field col s12"
                               style={{ marginTop: "80px" }}
                             >
-                              <button
-                                className="btn waves-effect waves-light"
-                                type="submit"
-                                name="action"
-                              >
-                                Add to Cart &nbsp;
-                                <FontAwesomeIcon icon={faPaperPlane} />
-                              </button>
+                              {hasRole("user") ? (
+                                <button
+                                  className="btn waves-effect waves-light"
+                                  type="submit"
+                                  name="action"
+                                >
+                                  Add to Cart &nbsp;
+                                  <FontAwesomeIcon icon={faPaperPlane} />
+                                </button>
+                              ) : (
+                                <p>
+                                  <a href="/login">
+                                    Log in to place an order
+                                    <FontAwesomeIcon icon={faHippo} />
+                                  </a>
+                                </p>
+                              )}
                             </div>
                             <h5>
                               <p>
@@ -283,24 +295,27 @@ const BookList: React.FC<BookListProps> = ({ books: initialBooks, header }) => {
                           </div>
                         </form>
                       </div>
+                      {isAdmin && (
+                        <>
+                          <div style={{ padding: "20px" }}>
+                            <button
+                              className="btn-floating btn-large waves-effect waves-light"
+                              onClick={() => handleDeletion(book.id)}
+                            >
+                              <FontAwesomeIcon icon={faEraser} />
+                            </button>
+                          </div>
 
-                      <div style={{ padding: "20px" }}>
-                        <button
-                          className="btn-floating btn-large waves-effect waves-light"
-                          onClick={() => handleDeletion(book.id)}
-                        >
-                          <FontAwesomeIcon icon={faEraser} />
-                        </button>
-                      </div>
-
-                      <div style={{ padding: "20px" }}>
-                        <button
-                          className="btn-floating btn-large waves-effect waves-light"
-                          onClick={() => handleBookUpdate(book.id)}
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </button>
-                      </div>
+                          <div style={{ padding: "20px" }}>
+                            <button
+                              className="btn-floating btn-large waves-effect waves-light"
+                              onClick={() => handleBookUpdate(book.id)}
+                            >
+                              <FontAwesomeIcon icon={faPen} />
+                            </button>
+                          </div>
+                        </>
+                      )}
 
                       <div style={{ padding: "20px" }}>
                         <a

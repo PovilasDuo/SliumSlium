@@ -130,7 +130,7 @@ namespace LibraryReservationApp.Controllers
                 return null;
             }
 
-            var role = user.Role == 1 ? "admin" : "user";
+            var role = user.Role == 2 ? "admin" : "user";
             var token = GenerateToken(
                 new KeyValuePair<string, string>("userId", user.Id.ToString()),
                 new KeyValuePair<string, string>("role", role)

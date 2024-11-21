@@ -4,6 +4,7 @@ import { ReservationDTO } from "../models/ReservationDTO";
 import {
   changeReservationStatusById,
   deleteReservationById,
+  fetchReservations,
   getUserReservations,
 } from "../services/ReservationService";
 import { faPlus, faMinus, faX, faPen } from "@fortawesome/free-solid-svg-icons";
@@ -21,7 +22,8 @@ const Account: React.FC = () => {
     number | null
   >(null);
   const [newStatus, setNewStatus] = useState<string>("");
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
 
   useEffect(() => {
     loadData();
@@ -38,7 +40,10 @@ const Account: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const reservationData = await getUserReservations(user!.id);
+      let reservationData = null;
+      if (isAdmin) {
+        reservationData = await fetchReservations();
+      } else reservationData = await getUserReservations(user!.id);
       setReservations(reservationData);
     } catch (error) {
       console.error("Error loading data:", error);
@@ -94,11 +99,14 @@ const Account: React.FC = () => {
 
   return (
     <div className="container center-align">
-      <h1>My book reservations</h1>
+      {!isAdmin ? <h1>My book reservations</h1> : <h1>All reservations</h1>}
+
       {reservations.length === 0 ? (
         <div className="container center-align">
           <h5>No reservations found :(</h5>
         </div>
+      ) : !user ? (
+        <div>Log in to make a new reservation</div>
       ) : (
         <div>
           <ul>
@@ -120,12 +128,14 @@ const Account: React.FC = () => {
                 <h5>
                   <p>
                     Status: <i>{reservation.status}</i> &nbsp;
-                    <button
-                      className="btn-floating btn-large waves-effect waves-light green"
-                      onClick={() => openStatusModal(reservation.id)}
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        className="btn-floating btn-large waves-effect waves-light green"
+                        onClick={() => openStatusModal(reservation.id)}
+                      >
+                        <FontAwesomeIcon icon={faPen} />
+                      </button>
+                    )}
                   </p>
                 </h5>
 
@@ -166,27 +176,32 @@ const Account: React.FC = () => {
                               Extend: <FontAwesomeIcon icon={faPlus} />
                             </button>
                           </p>
-                          <p>
-                            <button
-                              className="btn-large waves-effect waves-light red"
-                              onClick={() => returnBook(reservedBook.id)}
-                            >
-                              Return: <FontAwesomeIcon icon={faMinus} />
-                            </button>
-                          </p>
+
+                          {isAdmin && (
+                            <p>
+                              <button
+                                className="btn-large waves-effect waves-light red"
+                                onClick={() => returnBook(reservedBook.id)}
+                              >
+                                Return: <FontAwesomeIcon icon={faMinus} />
+                              </button>
+                            </p>
+                          )}
                         </div>
                       </div>
                     </li>
                   ))}
                 </ul>
-                <p>
-                  <button
-                    className="btn-large waves-effect red"
-                    onClick={() => deleteReservation(reservation.id)}
-                  >
-                    Cancel: <FontAwesomeIcon icon={faX} />
-                  </button>
-                </p>
+                {isAdmin && (
+                  <p>
+                    <button
+                      className="btn-large waves-effect red"
+                      onClick={() => deleteReservation(reservation.id)}
+                    >
+                      Cancel: <FontAwesomeIcon icon={faX} />
+                    </button>
+                  </p>
+                )}
               </li>
             ))}
           </ul>
