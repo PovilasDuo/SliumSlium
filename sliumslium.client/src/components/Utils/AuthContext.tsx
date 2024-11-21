@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -13,6 +14,7 @@ interface AuthContextType {
   signUp: (name: string, email: string, password: string) => Promise<any>;
   logIn: (email: string, password: string) => Promise<any>;
   logOut: () => void;
+  hasRole: (role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [token, setToken] = useState<string>(
     localStorage.getItem("token") || ""
   );
@@ -91,10 +94,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("token");
     setToken("");
     setUser(null);
+    navigate("/");
+  };
+
+  const hasRole = (role: string) => {
+    return user?.role === role;
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, signUp, logIn, logOut }}>
+    <AuthContext.Provider
+      value={{ user, token, signUp, logIn, logOut, hasRole }}
+    >
       {children}
     </AuthContext.Provider>
   );

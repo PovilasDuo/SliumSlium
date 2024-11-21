@@ -59,9 +59,9 @@ using (var scope = app.Services.CreateScope())
 
     context.Users.Add(new User
     {
-        Name = "user",
-        Email = "user@example.com",
-        Password = "password",
+        Name = "Povilas",
+        Email = "ogiuxd31@gmail.com",
+        Password = "Povilas!23",
         Role = 1
     });
 

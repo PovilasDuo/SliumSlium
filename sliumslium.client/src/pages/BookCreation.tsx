@@ -49,6 +49,7 @@ export default function BookCreation() {
       });
       return;
     }
+    book.year = Number(book.year);
     await postBook(book, file);
   };
 

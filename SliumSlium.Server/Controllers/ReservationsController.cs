@@ -232,11 +232,13 @@ namespace LibraryReservationApp.Controllers
             {
                 if (reservationBook != null)
                 {
-                    body.AppendLine($"{reservationBook.Book.Name}: {reservationBook.Days} - ${reservationBook.Price}");
+                    body.AppendLine($"\t{reservationBook.Book.Name}: " +
+                        $"{reservationBook.Days} days - €{reservationBook.Price:F2} " +
+                        $"{(reservationBook.QuickPickUp ? " (5€ included for the quick pick up)" : "")}");
                 }
             }
 
-            body.AppendLine($"\nTotal Price: ${Math.Round(reservation.Payment.Amount, 2)}");
+            body.AppendLine($"\nTotal Price: €{Math.Round(reservation.Payment.Amount, 2)} (Service fee of 3€ is included with every order)");
             body.AppendLine("\nThank you for your order!");
 
             return body.ToString();

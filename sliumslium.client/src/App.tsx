@@ -13,26 +13,58 @@ import BookUpdate from "./pages/BookUpdate";
 import Login from "./pages/Login";
 import { AuthProvider } from "./components/Utils/AuthContext";
 import Signup from "./pages/Signup";
+import PrivateWrapper from "./components/Utils/PrivateWrapper";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
   return (
     <BrowserRouter>
-    <AuthProvider>
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/search-results" element={<SearchResults />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/book-creation" element={<BookCreation />} />
-          <Route path="/book-update/:id" element={<BookUpdate />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/*" element={<HomePage />} />
-        </Routes>
-      </main>
-      <Footer />
+      <AuthProvider>
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/search-results" element={<SearchResults />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route
+              path="/book-creation"
+              element={
+                <PrivateWrapper requiredRole={"admin"}>
+                  <BookCreation />
+                </PrivateWrapper>
+              }
+            />
+            <Route
+              path="/book-update/:id"
+              element={
+                <PrivateWrapper requiredRole={"admin"}>
+                  <BookUpdate />
+                </PrivateWrapper>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <PrivateWrapper>
+                  <Login />
+                </PrivateWrapper>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <PrivateWrapper>
+                  <Signup />
+                </PrivateWrapper>
+              }
+            />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/*" element={<HomePage />} />
+          </Routes>
+        </main>
+        <Footer />
       </AuthProvider>
     </BrowserRouter>
   );

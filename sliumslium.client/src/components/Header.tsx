@@ -17,9 +17,9 @@ export default function Header() {
     logOut();
   };
 
-  const html = (
+  return (
     <nav>
-      <div className="nav-wrapper" style={{}}>
+      <div className="nav-wrapper">
         <span style={{ fontWeight: "bold", fontSize: "1.2rem" }}>
           <a href="/">
             &emsp;SliumSlium library&ensp;
@@ -29,48 +29,45 @@ export default function Header() {
         <ul className="right" style={{ marginLeft: "10%" }}>
           <li>
             <a href="/">
-              Home <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
+              Home <FontAwesomeIcon icon={faHome} />
             </a>
           </li>
           <li>
             <a href="/account">
-              My reservations <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>
+              My reservations <FontAwesomeIcon icon={faUser} />
             </a>
           </li>
           <li>
             <a href="/cart">
-              Cart <FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon>
+              Cart <FontAwesomeIcon icon={faCartShopping} />
             </a>
           </li>
           <li>
             <a href="/book-creation">
-              Add book <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
+              Add book <FontAwesomeIcon icon={faPlus} />
             </a>
           </li>
-          <li>
-            {!user && (
-              <li>
-                <a href="/login">
-                  Log In <FontAwesomeIcon icon={faHippo}></FontAwesomeIcon>
-                </a>
-              </li>
-            )}
-            {user && (
-              <li>
-                <button className="btn-flat white-text" onClick={handleLogout}>
-                  Log out <FontAwesomeIcon icon={faDog}></FontAwesomeIcon>
-                </button>
-              </li>
-            )}
-            {!user && (
-              <li>
-                <a href="/Signup">SIGN UP</a>
-              </li>
-            )}
-          </li>
+          {!user && (
+            <li>
+              <a href="/login">
+                Log In <FontAwesomeIcon icon={faHippo} />
+              </a>
+            </li>
+          )}
+          {user && (
+            <li>
+              <button className="btn-flat white-text" onClick={handleLogout}>
+                Log out <FontAwesomeIcon icon={faDog} />
+              </button>
+            </li>
+          )}
+          {!user && (
+            <li>
+              <a href="/signup">Sign up</a>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
   );
-  return html;
 }

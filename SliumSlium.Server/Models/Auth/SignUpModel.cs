@@ -7,14 +7,11 @@ namespace LibraryReservationApp.Models.Auth
     {
         [Required]
         public string Name { get; set; } = null!;
-
         [Required]
         public string Email { get; set; } = null!;
-
         [Required]
         [StrongPassword]
         public string Password { get; set; } = null!;
-
         [Required]
         public int Role { get; set; } = 0;
     }
